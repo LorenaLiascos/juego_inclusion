@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <!-- ============== METADATOS Y CONFIGURACIÓN INICIAL ============== -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ponte en mis Zapatos: El Reto de Carlos</title>
+    
+    <!-- ============== IMPORTACIÓN DE FUENTES (TIPOGRAFÍA) ============== -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&family=Work+Sans:wght@500&display=swap" rel="stylesheet">
+    
+    <!-- ============== ESTILOS CSS ============== -->
+    <style>
+        /* --- VARIABLES GLOBALES DE COLOR Y ESTILO (PALETA CORREGIDA) --- */
+        :root {
+            --color-primario: #00BFFF;      /* Cian Vibrante */
+            --color-secundario: #F8C548;    /* Amarillo/Dorado para títulos */
+            --color-texto: #EAEAEA;         /* Gris Claro */
+            --color-sombra: rgba(0, 0, 0, 0.5);
+            --color-fondo-boton: #1B2735;   /* Azul Oscuro de Fondo */
+        }
+
+        /* --- ESTILOS GENERALES Y FONDO (CON SCROLL CORREGIDO) --- */
+        body {
+            color: var(--color-texto);
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            justify-content: center;
+            /* Se elimina align-items: center para permitir el scroll */
+            min-height: 100vh;
+            margin: 0;
+            padding: 40px 20px; /* Espacio arriba y abajo */
+            box-sizing: border-box;
+            perspective: 500px;
+            overflow-x: hidden; /* Ocultamos el scroll horizontal */
+            overflow-y: auto;   /* Permitimos el scroll vertical cuando sea necesario */
+            
+            background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
+        }
+        
+        /* --- CONTENEDOR PRINCIPAL CON EFECTO GLASSMORPHISM --- */
+        .main-container {
+            background: rgba(27, 39, 53, 0.45);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px var(--color-sombra);
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+            position: relative; 
+            z-index: 2; 
+        }
+
+        /* --- ESTILOS ESPECÍFICOS PARA LA PORTADA --- */
+        #intro-container h1 { color: var(--color-secundario); font-size: 2.5em; margin-bottom: 1.5rem; }
+        #intro-container p { font-size: 1.2em; line-height: 1.7; margin: 2rem 0; }
+
+        /* --- ESTILOS DE TEXTOS Y TÍTULOS DEL JUEGO--- */
+        #scene-title { color: var(--color-secundario); font-size: 2em; margin-top: 0; margin-bottom: 1rem; }
+        #story-text { font-size: 1.1em; line-height: 1.7; min-height: 100px; display: flex; align-items: center; justify-content: center; }
+
+        /* --- ESTILOS DE LOS BOTONES DE DECISIÓN --- */
+        #choices-container, #start-button-container { margin-top: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; align-items: center; }
+        .choice-button { display: block; position: relative; padding: .8em 2.2em; cursor: pointer; background: #FFFFFF; border: none; border-radius: .4em; text-transform: uppercase; font-size: 1.2em; font-family: "Work Sans", sans-serif; font-weight: 500; letter-spacing: 0.04em; mix-blend-mode: color-dodge; perspective: 500px; transform-style: preserve-3d; width: 80%; }
+        .choice-button span { mix-blend-mode: normal; display: block; color: var(--color-fondo-boton); }
+        .choice-button:before, .choice-button:after { --z: 0px; position: absolute; top: 0; left: 0; display: block; content: ''; width: 100%; height: 100%; opacity: 0; mix-blend-mode: inherit; border-radius: inherit; transform-style: preserve-3d; transform: translate3d(calc(var(--z) * 0px), calc(var(--z) * 0px), calc(var(--z) * 0px)); }
+        .choice-button:after { background-color: #FF1731; }
+        .choice-button:before { background-color: var(--color-primario); }
+        .choice-button:hover { background-color: var(--color-secundario); transition: background .3s 0.1s; }
+        .choice-button:hover:before { --z: 0.04; animation: translateWobble 2.2s ease forwards; }
+        .choice-button:hover:after { --z: -0.06; animation: translateWobble 2.2s ease forwards; }
+        @keyframes translateWobble { 0% { opacity: 0; transform: translate3d(calc(var(--z) * 0px), calc(var(--z) * 0px), calc(var(--z) * 0px)); } 16% { transform: translate3d(calc(var(--z) * 160px), calc(var(--z) * 160px), calc(var(--z) * 160px)); } 28% { opacity: 1; transform: translate3d(calc(var(--z) * 70px), calc(var(--z) * 70px), calc(var(--z) * 70px)); } 44% { transform: translate3d(calc(var(--z) * 130px), calc(var(--z) * 130px), calc(var(--z) * 130px)); } 59% { transform: translate3d(calc(var(--z) * 85px), calc(var(--z) * 85px), calc(var(--z) * 85px)); } 73% { transform: translate3d(calc(var(--z) * 110px), calc(var(--z) * 110px), calc(var(--z) * 110px)); } 88% { opacity: 1; transform: translate3d(calc(var(--z) * 90px), calc(var(--z) * 90px), calc(var(--z) * 90px)); } 100% { opacity: 1; transform: translate3d(calc(var(--z) * 100px), calc(var(--z) * 100px), calc(var(--z) * 100px)); } }
+
+        /* --- ESTILOS DE LA TABLA DE REFLEXIÓN FINAL --- */
+        #reflection-table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.9em; }
+        #reflection-table th, #reflection-table td { border: 2px solid var(--color-primario); padding: 12px; text-align: left; vertical-align: top; }
+        #reflection-table th { background-color: var(--color-primario); color: #ffffff; font-size: 1.1em; }
+        .ponte-en-tus-zapatos { background-color: rgba(27, 39, 53, 0.7); font-style: italic; }
+        #reflection-table td strong { color: var(--color-secundario); }
+        
+        /* --- ESTILOS PARA EL EFECTO GLITCH --- */
+        .c-glitch, .c-glitch__img { background-repeat: no-repeat; background-position: center center; background-size: contain; }
+        .c-glitch { height: 450px; width: 100%; margin-bottom: 1.5rem; overflow: hidden; position: relative; background-color: #000; border-radius: 10px; }
+        .c-glitch__img { height: 100%; left: 0; pointer-events: none; position: absolute; top: 0; transform: translate3d(0, 0, 0); width: 100%; }
+        .c-glitch:hover .c-glitch__img:nth-child(n+2) { animation: 2s linear 0s infinite forwards glitch-anim-1; }
+        .c-glitch:hover .c-glitch__img:nth-child(2) { animation-name: glitch-anim-1; }
+        .c-glitch:hover .c-glitch__img:nth-child(3) { animation-name: glitch-anim-2; }
+        .c-glitch:hover .c-glitch__img:nth-child(4) { animation-name: glitch-anim-3; }
+        .c-glitch:hover .c-glitch__img:nth-child(5) { animation-name: glitch-anim-4; background-blend-mode: overlay; background-color: #af4949; }
+        .c-glitch__img:nth-child(n+2) { opacity: 0; }
+        @keyframes glitch-anim-1 { 0%, 100% { opacity: 1; transform: translate3d(20px, 0, 0) scale3d(-1, -1, 1); clip-path: polygon(0 2%, 100% 2%, 100% 5%, 0 5%); } 20% { clip-path: polygon(0 15%, 100% 15%, 100% 15%, 0 15%); } 30% { clip-path: polygon(0 10%, 100% 10%, 100% 20%, 0 20%); } 40% { clip-path: polygon(0 1%, 100% 1%, 100% 2%, 0 2%); } 50% { clip-path: polygon(0 33%, 100% 33%, 100% 33%, 0 33%); } 60% { clip-path: polygon(0 50%, 100% 50%, 100% 20%, 0 20%); } 70% { clip-path: polygon(0 80%, 100% 80%, 100% 80%, 0 80%); } 80% { clip-path: polygon(0 50%, 100% 50%, 100% 55%, 0 55%); } 95% { clip-path: polygon(0 72%, 100% 72%, 100% 78%, 0 78%); } }
+        @keyframes glitch-anim-2 { 0%, 100% { opacity: 1; transform: translate3d(-10px, 0, 0); clip-path: polygon(0 25%, 100% 25%, 100% 30%, 0 30%); } 10% { clip-path: polygon(0 3%, 100% 3%, 100% 3%, 0 3%); } 19% { clip-path: polygon(0 40%, 100% 40%, 100% 40%, 0 40%); } 33% { clip-path: polygon(0 52%, 100% 52%, 100% 59%, 0 59%); } 45% { clip-path: polygon(0 65%, 100% 65%, 100% 40%, 0 40%); } 50% { clip-path: polygon(0 14%, 100% 14%, 100% 33%, 0 33%); } 70% { clip-path: polygon(0 65%, 100% 65%, 100% 60%, 0 60%); } 90% { clip-path: polygon(0 55%, 100% 55%, 100% 65%, 0 65%); } }
+        @keyframes glitch-anim-3 { 0%, 100% { opacity: 1; transform: translate3d(0, -5px, 0) scale3d(-1, -1, 1); clip-path: polygon(0 1%, 100% 1%, 100% 3%, 0 3%); } 11% { clip-path: polygon(0 5%, 100% 5%, 100% 6%, 0 6%); } 35% { clip-path: polygon(0 30%, 100% 30%, 100% 25%, 0 25%); } 56% { clip-path: polygon(0 60%, 100% 60%, 100% 55%, 0 55%); } 77% { clip-path: polygon(0 80%, 100% 80%, 100% 75%, 0 75%); } 92% { clip-path: polygon(0 100%, 100% 100%, 100% 99%, 0 99%); } }
+        @keyframes glitch-anim-4 { 0%, 5% { opacity: 0.2; transform: translate3d(10px, 5px, 0); } 5.5%, 100% { opacity: 0; transform: translate3d(0, 0, 0); } }
+
+        /* --- CLASE UTILITARIA PARA OCULTAR ELEMENTOS --- */
+        .hidden { display: none !important; }
+
+        /* --- NUEVOS ESTILOS PARA EL FONDO DE ESTRELLAS --- */
+        #stars, #stars2, #stars3 {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1px;
+            height: 1px;
+            background: transparent;
+            z-index: 1;
+        }
+        #stars { animation: animStar 50s linear infinite; }
+        #stars2 { width: 2px; height: 2px; animation: animStar 100s linear infinite; }
+        #stars3 { width: 3px; height: 3px; animation: animStar 150s linear infinite; }
+
+        #stars:after, #stars2:after, #stars3:after {
+            content: " ";
+            position: absolute;
+            top: 2000px;
+            background: transparent;
+        }
+        #stars:after { width: 1px; height: 1px; }
+        #stars2:after { width: 2px; height: 2px; }
+        #stars3:after { width: 3px; height: 3px; }
+
+        @keyframes animStar {
+            from { transform: translateY(0px); }
+            to { transform: translateY(-2000px); }
+        }
+
+        /* --- DISEÑO RESPONSIVO PARA DISPOSITIVOS MÓVILES --- */
+        @media (max-width: 768px) {
+            body { padding: 20px 10px; }
+            .main-container, #intro-container { padding: 1rem; }
+            .c-glitch { height: 250px; }
+            #scene-title, #intro-container h1 { font-size: 1.5em; }
+            #story-text, #intro-container p { font-size: 1em; }
+            .choice-button { font-size: 1em; width: 100%; }
+            #reflection-table { font-size: 0.8em; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ============== ESTRUCTURA HTML DEL FONDO Y JUEGO ============== -->
+    <div class="background-container">
+        <div id="stars"></div>
+        <div id="stars2"></div>
+        <div id="stars3"></div>
+    </div>
+
+    <div id="intro-container" class="main-container">
+        <div class="c-glitch" id="intro-glitch-container">
+            <div class="c-glitch__img"></div>
+            <div class="c-glitch__img"></div>
+            <div class="c-glitch__img"></div>
+            <div class="c-glitch__img"></div>
+            <div class="c-glitch__img"></div>
+        </div>
+        <h1>Ponte en mis zapatos: El reto diario</h1>
+        <p>Estás a punto de iniciar una simulación. Aquí no hay puntos ni ganadores. El objetivo es experimentar, por un momento, los desafíos diarios que enfrentan las personas con discapacidad.</p>
+        <div id="start-button-container">
+            <button id="start-button" class="choice-button"><span>COMENZAR</span></button>
+        </div>
+    </div>
+
+    <main id="game-container" class="main-container hidden">
+        <div class="c-glitch" id="glitch-container">
+            <div class="c-glitch__img"></div>
+            <div class="c-glitch__img"></div>
+            <div class="c-glitch__img"></div>
+            <div class="c-glitch__img"></div>
+            <div class="c-glitch__img"></div>
+        </div>
+        <h1 id="scene-title"></h1>
+        <div id="story-text"></div>
+        <div id="choices-container"></div>
+    </main>
+
+    <!-- ============== LÓGICA JAVASCRIPT DEL JUEGO ============== -->
+    <script>
+        const introContainer = document.getElementById('intro-container');
+        const startButton = document.getElementById('start-button');
+        const gameContainer = document.getElementById('game-container');
+        const storyTextElement = document.getElementById('story-text');
+        const choicesContainerElement = document.getElementById('choices-container');
+        const sceneTitleElement = document.getElementById('scene-title');
+        const glitchContainer = document.getElementById('glitch-container');
+        const glitchImages = glitchContainer.querySelectorAll('.c-glitch__img');
+        const introGlitchContainer = document.getElementById('intro-glitch-container');
+        const introGlitchImages = introGlitchContainer.querySelectorAll('.c-glitch__img');
+
+        const story = [
+            { id: 1, title: "El Reto de Carlos", text: "Son las 8:00 a.m. Tu examen final es a las 9:00 a.m. Sales de casa y te diriges al paradero que está a unas cuadras.", image: "img/1.webp", choices: [ { text: "Avanzar por el andén", nextSceneId: 2 } ] },
+            { id: 2, title: "Primera Barrera", text: "A solo una cuadra, un carro bloquea completamente el andén. Es imposible pasar.", image: "img/2.webp", choices: [ { text: "Bajar a la calle para rodearlo", nextSceneId: 3 }, { text: "Esperar y pedir ayuda", nextSceneId: 4 } ] },
+            { id: 3, title: "Consecuencia", text: "Bajar a la calle es un riesgo. Los carros pasan rápido y te sientes vulnerable. Logras rodearlo, pero te toma 5 minutos extra y un buen susto. Llegas al paradero.", image: "img/3.webp", choices: [ { text: "Esperar el bus", nextSceneId: 5 } ] },
+            { id: 4, title: "Consecuencia", text: "Esperas dos minutos. Pasa una persona y le pides ayuda, pero te responde con afán: 'Qué pena, voy de afán'. Se va. Te sientes ignorado y no te queda más opción que arriesgarte.", image: "img/7.webp", choices: [ { text: "Bajar a la calle con precaución", nextSceneId: 3 } ] },
+            { id: 5, title: "Segunda Barrera", text: "Llega tu ruta, pero es un bus antiguo. El conductor te ve y hace un gesto indicando que no puedes subir. Cierra la puerta y se va. La frustración aumenta.", image: "img/4.webp", choices: [ { text: "Esperar el siguiente bus (pierdes 15 min)", nextSceneId: 6 } ] },
+            { id: 6, title: "Resolución", text: "Finalmente, 15 minutos después, llega un bus accesible. Logras subir, pero ya son las 8:50 a.m. Has superado las barreras, pero es un hecho que llegarás tarde a tu examen.", image: "img/5.webp", choices: [ { text: "Ver Reflexión Final", nextSceneId: 7 } ] },
+            { 
+                id: 7, 
+                title: "Reflexión Final", 
+                image: "img/6.webp", 
+                text: `<table id="reflection-table"><tr><th colspan="2">Análisis del Reto de Carlos</th></tr><tr><td><strong>Barreras Enfrentadas:</strong><br>• <u>Arquitectónica:</u> El carro en el andén y el bus inaccesible.<br>• <u>Actitudinal:</u> La indiferencia de la persona que no ayudó.</td><td><strong>Preguntas para Reflexionar:</strong><br>• ¿Quién es el responsable de que Carlos llegue tarde?<br>• ¿Cómo afecta la motivación enfrentar estas barreras a diario?</td></tr><tr><td colspan="2" class="ponte-en-tus-zapatos"><strong>Ponte en TUS zapatos:</strong><br>Piensa en la última vez que llegaste tarde. Los motivos de Carlos no dependían de él, sino de un entorno que no está preparado para incluirlo.</td></tr></table>`, 
+                choices: [ 
+                    { text: "Volver a Jugar", nextSceneId: 1 },
+                    { text: "Juegos Inclusivos", nextSceneId: 1 }
+                ] 
+            }
+        ];
+
+        function showScene(sceneId) {
+            const scene = story.find(s => s.id === sceneId);
+            if (scene.id === 7) {
+                storyTextElement.style.display = 'block';
+                storyTextElement.style.minHeight = 'auto';
+            } else {
+                storyTextElement.style.display = 'flex';
+                storyTextElement.style.minHeight = '100px';
+            }
+            const imageUrl = `url('${scene.image}')`;
+            glitchContainer.style.backgroundImage = imageUrl;
+            glitchImages.forEach(img => { img.style.backgroundImage = imageUrl; });
+            sceneTitleElement.innerText = scene.title;
+            storyTextElement.innerHTML = scene.text;
+            choicesContainerElement.innerHTML = '';
+            scene.choices.forEach(choice => {
+                const button = document.createElement('button');
+                button.className = 'choice-button';
+                const buttonText = document.createElement('span');
+                buttonText.innerText = choice.text;
+                button.appendChild(buttonText);
+                button.addEventListener('click', () => showScene(choice.nextSceneId));
+                choicesContainerElement.appendChild(button);
+            });
+        }
+
+        // --- LÓGICA DE INICIO DEL JUEGO ---
+        const introImageUrl = `url('img/8.webp')`;
+        introGlitchContainer.style.backgroundImage = introImageUrl;
+        introGlitchImages.forEach(img => {
+            img.style.backgroundImage = introImageUrl;
+        });
+
+        startButton.addEventListener('click', () => {
+            introContainer.classList.add('hidden');
+            gameContainer.classList.remove('hidden');
+            showScene(1);
+        });
+
+        // --- SCRIPT PARA GENERAR ESTRELLAS ALEATORIAS ---
+        function generateStars() {
+            const starsSmall = document.getElementById('stars');
+            const starsMedium = document.getElementById('stars2');
+            const starsBig = document.getElementById('stars3');
+            
+            const createShadows = (n) => {
+                let shadows = '';
+                for (let i = 0; i < n; i++) {
+                    shadows += `${Math.random() * 2000}px ${Math.random() * 2000}px #FFF,`;
+                }
+                return shadows.slice(0, -1); // Remove last comma
+            };
+
+            const shadowsSmall = createShadows(700);
+            const shadowsMedium = createShadows(200);
+            const shadowsBig = createShadows(100);
+
+            starsSmall.style.boxShadow = shadowsSmall;
+            starsMedium.style.boxShadow = shadowsMedium;
+            starsBig.style.boxShadow = shadowsBig;
+
+            const afterSmall = document.createElement('style');
+            afterSmall.innerHTML = `#stars:after { box-shadow: ${shadowsSmall}; }`;
+            document.head.appendChild(afterSmall);
+
+            const afterMedium = document.createElement('style');
+            afterMedium.innerHTML = `#stars2:after { box-shadow: ${shadowsMedium}; }`;
+            document.head.appendChild(afterMedium);
+            
+            const afterBig = document.createElement('style');
+            afterBig.innerHTML = `#stars3:after { box-shadow: ${shadowsBig}; }`;
+            document.head.appendChild(afterBig);
+        }
+
+        generateStars();
+
+    </script>
+</body>
+</html>
