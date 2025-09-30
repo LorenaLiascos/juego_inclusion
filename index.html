@@ -1,21 +1,17 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <!-- ============== METADATOS Y CONFIGURACIÓN INICIAL ============== -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ponte en mis Zapatos: El Reto Diario</title>
     <link rel="icon" href="imgs/sena_verde.webp" type="image/png" sizes="32x32">
     
-    <!-- ============== IMPORTACIÓN DE FUENTES (TIPOGRAFÍA) ============== -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&family=Work+Sans:wght@500&display=swap" rel="stylesheet">
     
-    <!-- jQuery es necesario para el nuevo efecto de imagen -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
-    <!-- ============== ESTILOS CSS ============== -->
     <style>
         /* --- VARIABLES GLOBALES DE COLOR Y ESTILO --- */
         :root {
@@ -38,6 +34,7 @@
             box-sizing: border-box;
             perspective: 500px;
             overflow-x: hidden;
+            /* Se mantiene 'auto' para permitir scroll si el contenido lo necesita */
             overflow-y: auto;
             background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
         }
@@ -124,16 +121,55 @@
         /* --- CLASE UTILITARIA PARA OCULTAR ELEMENTOS --- */
         .hidden { display: none !important; }
 
-        /* --- NUEVOS ESTILOS PARA EL FONDO DE ESTRELLAS --- */
+        /* --- [AJUSTE] ESTILOS PARA EL FONDO DE ESTRELLAS --- */
+        /* Se encapsula el fondo en un contenedor fijo para que no afecte el scroll */
+        .background-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden; /* Evita que las estrellas generen scroll */
+        }
         #stars, #stars2, #stars3 { position: absolute; top: 0; left: 0; width: 1px; height: 1px; background: transparent; z-index: 1; }
         #stars { animation: animStar 50s linear infinite; }
         #stars2 { width: 2px; height: 2px; animation: animStar 100s linear infinite; }
         #stars3 { width: 3px; height: 3px; animation: animStar 150s linear infinite; }
-        #stars:after, #stars2:after, #stars3:after { content: " "; position: absolute; top: 2000px; background: transparent; }
-        #stars:after { width: 1px; height: 1px; }
-        #stars2:after { width: 2px; height: 2px; }
-        #stars3:after { width: 3px; height: 3px; }
+        /* Se elimina el pseudo-elemento :after que causaba el scroll vertical excesivo */
         @keyframes animStar { from { transform: translateY(0px); } to { transform: translateY(-2000px); } }
+        
+        /* --- [NUEVO] ESTILOS PARA EL PRELOADER --- */
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+            background: #090A0F;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s ease-out;
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(0, 191, 255, 0.3);
+            border-top-color: var(--color-secundario);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        /* Clase para ocultar el contenido principal mientras carga */
+        body.loading > *:not(#preloader) {
+            display: none;
+        }
 
         /* --- DISEÑO RESPONSIVO PARA DISPOSITIVOS MÓVILES --- */
         @media (max-width: 768px) {
@@ -147,8 +183,10 @@
         }
     </style>
 </head>
-<body>
-    <!-- ============== ESTRUCTURA HTML DEL FONDO Y JUEGO ============== -->
+<body class="loading"> <div id="preloader">
+        <div class="spinner"></div>
+    </div>
+
     <div class="background-container">
         <div id="stars"></div>
         <div id="stars2"></div>
@@ -185,10 +223,8 @@
         <div id="choices-container"></div>
     </main>
 
-    <!-- Elemento de audio para la música de fondo -->
     <audio id="background-music" loop></audio>
 
-    <!-- ============== LÓGICA JAVASCRIPT DEL JUEGO ============== -->
     <script>
         // --- Referencias a los elementos del DOM ---
         const characterSelectionContainer = document.getElementById('character-selection-container');
@@ -374,23 +410,15 @@
             const starsMedium = document.getElementById('stars2');
             const starsBig = document.getElementById('stars3');
             
+            // [AJUSTE] Se reduce drásticamente el número de sombras para mejorar el rendimiento
             const createShadows = (n) => { let shadows = ''; for (let i = 0; i < n; i++) { shadows += `${Math.random() * 2000}px ${Math.random() * 2000}px #FFF,`; } return shadows.slice(0, -1); };
-            const shadowsSmall = createShadows(700), shadowsMedium = createShadows(200), shadowsBig = createShadows(100);
+            const shadowsSmall = createShadows(150), shadowsMedium = createShadows(50), shadowsBig = createShadows(25);
+            
             starsSmall.style.boxShadow = shadowsSmall;
             starsMedium.style.boxShadow = shadowsMedium;
             starsBig.style.boxShadow = shadowsBig;
 
-            const afterSmall = document.createElement('style');
-            afterSmall.innerHTML = `#stars:after { box-shadow: ${shadowsSmall}; }`;
-            document.head.appendChild(afterSmall);
-
-            const afterMedium = document.createElement('style');
-            afterMedium.innerHTML = `#stars2:after { box-shadow: ${shadowsMedium}; }`;
-            document.head.appendChild(afterMedium);
-            
-            const afterBig = document.createElement('style');
-            afterBig.innerHTML = `#stars3:after { box-shadow: ${shadowsBig}; }`;
-            document.head.appendChild(afterBig);
+            // Se elimina la creación de pseudo-elementos duplicados desde JS
         }
 
         generateStars();
@@ -418,13 +446,18 @@
                 transform: 'scale(1.03) translate(' + (block.CX * 0.05) + 'px, ' + (block.CY * 0.05) + 'px) rotateX(' + (block.CY * 0.05) + 'deg) rotateY(' + (block.CX * 0.05) + 'deg)'
             });
         }, 20);
-    </script>
-<!-- ============== 
- * @author Lorena Andrea Liascos Diaz
- * @version 1.0 - Septiembre 2025
- * @description [Ponte en mis Zapatos] - Un juego de Inclusión
- */ ============== -->
- 
 
+        // --- [NUEVO] LÓGICA DEL PRELOADER ---
+        window.onload = function() {
+            const preloader = document.getElementById('preloader');
+            const body = document.querySelector('body');
+            preloader.style.opacity = '0';
+            // Espera a que la transición de opacidad termine para quitar el preloader del DOM
+            setTimeout(() => {
+                preloader.style.display = 'none';
+                body.classList.remove('loading');
+            }, 500); // 500ms coincide con la duración de la transición en el CSS
+        };
+    </script>
 </body>
 </html>
