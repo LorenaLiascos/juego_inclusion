@@ -13,15 +13,16 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
     <style>
+        /* --- VARIABLES GLOBALES DE COLOR Y ESTILO --- */
         :root {
             --color-primario: #00BFFF;
             --color-secundario: #F8C548;
             --color-texto: #EAEAEA;
             --color-sombra: rgba(0, 0, 0, 0.5);
             --color-fondo-boton: #1B2735;
-            --btn-radius: 14px;
         }
 
+        /* --- ESTILOS GENERALES Y FONDO --- */
         body {
             color: var(--color-texto);
             font-family: 'Poppins', sans-serif;
@@ -33,95 +34,103 @@
             box-sizing: border-box;
             perspective: 500px;
             overflow-x: hidden;
+            /* Se mantiene 'auto' para permitir scroll si el contenido lo necesita */
             overflow-y: auto;
-            background:
-              radial-gradient(circle at 25% 30%, #1c3142 0%, #090A0F 70%),
-              radial-gradient(circle at 75% 70%, #152632 0%, #090A0F 65%);
-            background-attachment: fixed;
+            background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
         }
-
+        
+        /* --- [NUEVO] ESTILOS PARA EL FONDO DINÁMICO SVG --- */
         .dynamic-background {
             position: fixed;
-            inset: 0;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
             z-index: 0;
             overflow: hidden;
-            opacity: .35;
-            pointer-events: none;
         }
-        #home-anim { width: 100%; height: 100%; object-fit: cover; }
-        #home { clip-path: url(#cache); }
 
-        /* Atenuamos animaciones de líneas para menor coste */
-        #red, #blue, #light-blue {
+        #home-anim {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        #home {
+            clip-path: url(#cache);
+        }
+
+        #red { /* Se usará el color secundario */
             fill: none;
-            opacity: 0.12;
-            stroke-width: 10;
+            opacity: 0.15;
+            stroke: var(--color-secundario);
+            stroke-width: 12;
             stroke-miterlimit:10;
-        }
-        #red { stroke: var(--color-secundario); }
-        #blue { stroke: var(--color-primario); }
-        #light-blue {
-            stroke: var(--color-primario);
-            stroke-width: 5;
-            stroke-dasharray: 160;
-            stroke-dashoffset: 500;
-            animation: lineFlow 14s linear infinite;
-        }
-        @keyframes lineFlow {
-            0% { stroke-dashoffset: 500; }
-            100% { stroke-dashoffset: 0; }
+            animation: show 4s;
+            animation-fill-mode: forwards;
+            animation-iteration-count: infinite;
+            animation-timing-function: ease-in-out; 
         }
 
+        #blue { /* Se usará el color primario */
+            fill: none;
+            opacity: 0.15;
+            stroke: var(--color-primario);
+            stroke-width: 12;
+            stroke-miterlimit:10;
+            animation: show 4s;
+            animation-fill-mode: forwards;
+            animation-iteration-count: infinite;
+            animation-timing-function: ease-in-out;
+        }
+
+        #light-blue { /* Se usará el color primario */
+            fill: none;
+            opacity: 0.15;
+            stroke: var(--color-primario);
+            stroke-width: 6;
+            stroke-miterlimit:10;
+            stroke-dasharray: 200;
+            stroke-dashoffset: 800;
+            animation: draw 4s;
+            animation-fill-mode: forwards;
+            animation-iteration-count: infinite;
+            animation-timing-function: ease-in-out;    
+        }
+
+        @keyframes draw {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        @keyframes show {
+            0% { opacity: 0.15; }
+            50% { opacity: 0.2; }
+            100% { opacity: 0.15; }
+        }
+
+        /* --- CONTENEDOR PRINCIPAL CON EFECTO GLASSMORPHISM --- */
         .main-container {
-            background: rgba(27, 39, 53, 0.50);
-            backdrop-filter: blur(12px) saturate(140%);
-            -webkit-backdrop-filter: blur(12px) saturate(140%);
-            border: 1px solid rgba(255, 255, 255, 0.16);
+            background: rgba(27, 39, 53, 0.45);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             padding: 2rem;
-            border-radius: 22px;
-            box-shadow: 0 10px 30px -6px var(--color-sombra), 0 0 0 1px #ffffff12 inset;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px var(--color-sombra);
             width: 100%;
             max-width: 800px;
             text-align: center;
             position: relative; 
             z-index: 2; 
         }
-        .main-container::before {
-            content:"";
-            position:absolute;
-            inset:0;
-            background:
-              linear-gradient(120deg,#00bfff11,transparent 60%),
-              linear-gradient(-40deg,#f8c54811,transparent 65%);
-            mix-blend-mode:overlay;
-            pointer-events:none;
-        }
 
-        #character-selection-container h1,
-        #scene-title {
-            color: var(--color-secundario);
-            font-size: 2.5em;
-            margin: 0 0 .5rem;
-            letter-spacing: .5px;
-            text-shadow:
-              0 0 6px #f8c54855,
-              0 0 16px #f8c54833,
-              0 0 36px #00bfff22;
-        }
-        #character-selection-container h2.subtitle {
-            color: var(--color-secundario);
-            font-size: 2em;
-            margin-bottom: 1.5rem;
-            font-family: 'Work Sans', sans-serif;
-        }
-        #character-selection-container p {
-            font-size: 1.15em;
-            line-height: 1.65;
-            margin: 1rem 0 1.2rem;
-        }
-
+        /* --- ESTILOS DE LA PORTADA Y SELECCIÓN DE PERSONAJE --- */
+        #character-selection-container h1 { color: var(--color-secundario); font-size: 2.5em; margin-bottom: 0.5rem; }
+        #character-selection-container h2.subtitle { color: var(--color-secundario); font-size: 2em; margin-bottom: 1.5rem; font-family: 'Work Sans', sans-serif; }
+        #character-selection-container p { font-size: 1.2em; line-height: 1.7; margin: 1rem 0; }
+        
         #character-buttons { 
             display: flex; 
             flex-direction: column; 
@@ -130,154 +139,66 @@
             align-items: center;
         }
 
-        #story-text {
-            font-size: 1.1em;
-            line-height: 1.65;
-            min-height: 110px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+        /* --- ESTILOS DE TEXTOS DEL JUEGO--- */
+        #scene-title { color: var(--color-secundario); font-size: 2em; margin-top: 0; margin-bottom: 1rem; }
+        #story-text { font-size: 1.1em; line-height: 1.7; min-height: 100px; display: flex; align-items: center; justify-content: center; }
 
-        #choices-container {
-            margin-top: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1.25rem;
-            align-items: center;
-        }
-
-        /* Botones: mejorar legibilidad al hover y enfoque */
+        /* --- ESTILOS DE LOS BOTONES --- */
+        #choices-container { margin-top: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; align-items: center; }
         .choice-button { 
-            position: relative;
-            padding: .95em 2.3em;
-            cursor: pointer;
-            background: #162430;
-            border: 2px solid #1e3847;
-            border-radius: var(--btn-radius);
-            text-transform: uppercase;
-            font-size: 1.05em;
-            font-family: "Work Sans", sans-serif;
-            font-weight: 600;
-            letter-spacing: 0.05em;
-            color: #e6f7ff;
-            width: 80%;
-            max-width: 480px;
-            overflow: hidden;
-            transition: background .45s, color .45s, box-shadow .45s, transform .35s;
+            display: block; position: relative; padding: .8em 2.2em; cursor: pointer; 
+            background: #FFFFFF; border: none; border-radius: .4em; text-transform: uppercase; 
+            font-size: 1.2em; font-family: "Work Sans", sans-serif; font-weight: 500; letter-spacing: 0.04em; 
+            perspective: 500px; transform-style: preserve-3d; width: 80%; 
         }
-        .choice-button span { display: inline-block; }
-        .choice-button::before {
-            content:"";
-            position:absolute;
-            inset:0;
-            background:
-              radial-gradient(circle at 20% 120%, #00bfff33, transparent 60%),
-              radial-gradient(circle at 85% -10%, #f8c54833, transparent 60%);
-            opacity:0;
-            mix-blend-mode: screen;
-            transition: opacity .6s;
-        }
-        .choice-button:hover,
-        .choice-button:focus-visible {
-            background: linear-gradient(135deg,#00bfff 0%, #f8c548 100%);
-            color:#12202a;
-            box-shadow:
-              0 0 8px -2px #00bfff,
-              0 0 18px -4px #f8c548,
-              0 0 34px -6px #00bfff55;
-        }
-        .choice-button:hover::before,
-        .choice-button:focus-visible::before {
-            opacity:.85;
-        }
-        .choice-button:active {
-            transform: scale(.97);
-        }
-        .choice-button:focus-visible {
-            outline: 3px solid #ffffffaa;
-            outline-offset: 3px;
-        }
+        .choice-button span { display: block; color: var(--color-fondo-boton); }
+        .choice-button:before, .choice-button:after { --z: 0px; position: absolute; top: 0; left: 0; display: block; content: ''; width: 100%; height: 100%; opacity: 0; mix-blend-mode: color-dodge; border-radius: inherit; transform-style: preserve-3d; transform: translate3d(calc(var(--z) * 0px), calc(var(--z) * 0px), calc(var(--z) * 0px)); }
+        .choice-button:after { background-color: #FF1731; }
+        .choice-button:before { background-color: var(--color-primario); }
+        .choice-button:hover { background-color: var(--color-secundario); transition: background .3s 0.1s; }
+        .choice-button:hover span { color: var(--color-fondo-boton); }
+        .choice-button:hover:before { --z: 0.04; animation: translateWobble 2.2s ease forwards; }
+        .choice-button:hover:after { --z: -0.06; animation: translateWobble 2.2s ease forwards; }
+        @keyframes translateWobble { 0% { opacity: 0; transform: translate3d(calc(var(--z) * 0px), calc(var(--z) * 0px), calc(var(--z) * 0px)); } 16% { transform: translate3d(calc(var(--z) * 160px), calc(var(--z) * 160px), calc(var(--z) * 160px)); } 28% { opacity: 1; transform: translate3d(calc(var(--z) * 70px), calc(var(--z) * 70px), calc(var(--z) * 70px)); } 44% { transform: translate3d(calc(var(--z) * 130px), calc(var(--z) * 130px), calc(var(--z) * 130px)); } 59% { transform: translate3d(calc(var(--z) * 85px), calc(var(--z) * 85px), calc(var(--z) * 85px)); } 73% { transform: translate3d(calc(var(--z) * 110px), calc(var(--z) * 110px), calc(var(--z) * 110px)); } 88% { opacity: 1; transform: translate3d(calc(var(--z) * 90px), calc(var(--z) * 90px), calc(var(--z) * 90px)); } 100% { opacity: 1; transform: translate3d(calc(var(--z) * 100px), calc(var(--z) * 100px), calc(var(--z) * 100px)); } }
 
-        /* Sombra clara detrás del texto para que nunca “desaparezca” sobre fondos variables */
-        .choice-button span {
-            text-shadow: 0 1px 2px #00000055;
-        }
-        .choice-button:hover span,
-        .choice-button:focus-visible span {
-            text-shadow: 0 1px 2px #ffffff77;
-            font-weight: 700;
-        }
-
-        /* Efecto “onda” (ripple) liviano */
-        .choice-button .ripple {
-            position:absolute;
-            width:14px;
-            height:14px;
-            background: radial-gradient(circle, #ffffffcc 0%, #ffffff55 45%, transparent 70%);
-            border-radius:50%;
-            transform: scale(0);
-            animation: ripple .65s ease-out forwards;
-            pointer-events: none;
-            mix-blend-mode: plus-lighter;
-        }
-        @keyframes ripple {
-            to { transform: scale(22); opacity:0; }
-        }
-
+        /* --- ESTILOS DE LA TABLA DE REFLEXIÓN FINAL --- */
         #reflection-table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.9em; }
         #reflection-table th, #reflection-table td { border: 2px solid var(--color-primario); padding: 12px; text-align: left; vertical-align: top; }
-        #reflection-table th { background-color: var(--color-primario); color: #ffffff; font-size: 1.05em; }
+        #reflection-table th { background-color: var(--color-primario); color: #ffffff; font-size: 1.1em; }
         .ponte-en-tus-zapatos { background-color: rgba(27, 39, 53, 0.7); font-style: italic; }
         #reflection-table td strong { color: var(--color-secundario); }
+        
+        /* --- ESTILOS PARA EL EFECTO 3D Y LUZ EN LA IMAGEN --- */
+        .image-block { width: 100%; height: 450px; border-radius: 10px; position: relative; margin-bottom: 1.5rem; transition: box-shadow 0.5s; }
+        .image-block:hover { box-shadow: 0px 0px 70px #111; }
+        .image-block .circleLight { top: 0; left: 0; opacity: 0; content: ''; width: 100%; height: 100%; display: block; transition: 0.5s; position: absolute; border-radius: 10px; background: radial-gradient(circle at 50% 50%, #fff, transparent); }
+        .image-block:hover .circleLight { opacity: 0.2; }
 
-        .image-block {
-            width: 100%;
-            height: 450px;
-            border-radius: 18px;
-            position: relative;
-            margin-bottom: 1.6rem;
-            transition: box-shadow .6s, transform 1.2s cubic-bezier(.19,1,.22,1);
-            background:#050b10;
-            overflow:hidden;
-        }
-        .image-block:hover {
-            box-shadow: 0 0 50px -10px #0d2733, 0 0 0 1px #00bfff55 inset;
-        }
-        .image-block .circleLight {
-            position:absolute;
-            inset:0;
-            opacity:0;
-            background: radial-gradient(circle at 50% 50%, #ffffffaa 0%, transparent 55%);
-            mix-blend-mode: overlay;
-            transition: opacity .55s;
-            border-radius: inherit;
-        }
-        .image-block:hover .circleLight {
-            opacity:.22;
-        }
+        /* --- ESTILOS PARA EL EFECTO GLITCH --- */
+        .c-glitch, .c-glitch__img { background-repeat: no-repeat; background-position: center center; background-size: contain; }
+        .c-glitch { height: 100%; width: 100%; overflow: hidden; position: relative; background-color: #000; border-radius: 10px; }
+        .c-glitch__img { height: 100%; left: 0; pointer-events: none; position: absolute; top: 0; transform: translate3d(0, 0, 0); width: 100%; }
+        .c-glitch:hover .c-glitch__img:nth-child(n+2) { animation: 2s linear 0s infinite forwards glitch-anim-1; }
+        .c-glitch:hover .c-glitch__img:nth-child(2) { animation-name: glitch-anim-1; }
+        .c-glitch:hover .c-glitch__img:nth-child(3) { animation-name: glitch-anim-2; }
+        .c-glitch:hover .c-glitch__img:nth-child(4) { animation-name: glitch-anim-3; }
+        .c-glitch:hover .c-glitch__img:nth-child(5) { animation-name: glitch-anim-4; background-blend-mode: overlay; background-color: #af4949; }
+        .c-glitch__img:nth-child(n+2) { opacity: 0; }
+        @keyframes glitch-anim-1 { 0%, 100% { opacity: 1; transform: translate3d(20px, 0, 0) scale3d(-1, -1, 1); clip-path: polygon(0 2%, 100% 2%, 100% 5%, 0 5%); } 20% { clip-path: polygon(0 15%, 100% 15%, 100% 15%, 0 15%); } 30% { clip-path: polygon(0 10%, 100% 10%, 100% 20%, 0 20%); } 40% { clip-path: polygon(0 1%, 100% 1%, 100% 2%, 0 2%); } 50% { clip-path: polygon(0 33%, 100% 33%, 100% 33%, 0 33%); } 60% { clip-path: polygon(0 50%, 100% 50%, 100% 20%, 0 20%); } 70% { clip-path: polygon(0 80%, 100% 80%, 100% 80%, 0 80%); } 80% { clip-path: polygon(0 50%, 100% 50%, 100% 55%, 0 55%); } 95% { clip-path: polygon(0 72%, 100% 72%, 100% 78%, 0 78%); } }
+        @keyframes glitch-anim-2 { 0%, 100% { opacity: 1; transform: translate3d(-10px, 0, 0); clip-path: polygon(0 25%, 100% 25%, 100% 30%, 0 30%); } 10% { clip-path: polygon(0 3%, 100% 3%, 100% 3%, 0 3%); } 19% { clip-path: polygon(0 40%, 100% 40%, 100% 40%, 0 40%); } 33% { clip-path: polygon(0 52%, 100% 52%, 100% 59%, 0 59%); } 45% { clip-path: polygon(0 65%, 100% 65%, 100% 40%, 0 40%); } 50% { clip-path: polygon(0 14%, 100% 14%, 100% 33%, 0 33%); } 70% { clip-path: polygon(0 65%, 100% 65%, 100% 60%, 0 60%); } 90% { clip-path: polygon(0 55%, 100% 55%, 100% 65%, 0 65%); } }
+        @keyframes glitch-anim-3 { 0%, 100% { opacity: 1; transform: translate3d(0, -5px, 0) scale3d(-1, -1, 1); clip-path: polygon(0 1%, 100% 1%, 100% 3%, 0 3%); } 11% { clip-path: polygon(0 5%, 100% 5%, 100% 6%, 0 6%); } 35% { clip-path: polygon(0 30%, 100% 30%, 100% 25%, 0 25%); } 56% { clip-path: polygon(0 60%, 100% 60%, 100% 55%, 0 55%); } 77% { clip-path: polygon(0 80%, 100% 80%, 100% 75%, 0 75%); } 92% { clip-path: polygon(0 100%, 100% 100%, 100% 99%, 0 99%); } }
+        @keyframes glitch-anim-4 { 0%, 5% { opacity: 0.2; transform: translate3d(10px, 5px, 0); } 5.5%, 100% { opacity: 0; transform: translate3d(0, 0, 0); } }
 
-        /* Eliminamos glitch pesado: dejamos un contenedor plano */
-        .c-glitch {
-            position:relative;
-            width:100%;
-            height:100%;
-            background:#000 center/cover no-repeat;
-            filter: grayscale(.3) contrast(1.05) brightness(.94);
-            transition: filter 1s ease, transform 1.4s cubic-bezier(.19,1,.22,1);
-        }
-        .image-block:hover .c-glitch {
-            filter: grayscale(0) contrast(1.15) brightness(1.05) saturate(1.18);
-            transform: scale(1.055);
-        }
-        /* Eliminados .c-glitch__img y keyframes glitch originales */
-
+        /* --- CLASE UTILITARIA PARA OCULTAR ELEMENTOS --- */
         .hidden { display: none !important; }
-
+        
+        /* --- ESTILOS PARA EL PRELOADER --- */
         #preloader {
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             z-index: 9999;
             background: #090A0F;
             display: flex;
@@ -286,25 +207,32 @@
             transition: opacity 0.5s ease-out;
         }
         .spinner {
-            width: 54px;
-            height: 54px;
-            border: 6px solid rgba(0, 191, 255, 0.25);
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(0, 191, 255, 0.3);
             border-top-color: var(--color-secundario);
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            box-shadow: 0 0 12px -2px #00bfffaa, 0 0 22px -4px #f8c548aa;
         }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        body.loading > *:not(#preloader) { display: none; }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        /* Clase para ocultar el contenido principal mientras carga */
+        body.loading > *:not(#preloader) {
+            display: none;
+        }
 
+        /* --- DISEÑO RESPONSIVO PARA DISPOSITIVOS MÓVILES --- */
         @media (max-width: 768px) {
-            body { padding: 22px 12px; }
-            .main-container { padding: 1.1rem 1rem 1.9rem; }
-            .image-block { height: 250px; }
-            #scene-title, #character-selection-container h1 { font-size: 1.55em; }
+            body { padding: 20px 10px; }
+            .main-container, #intro-container { padding: 1rem; }
+            .image-block, .c-glitch { height: 250px; }
+            #scene-title, #character-selection-container h1 { font-size: 1.5em; }
             #story-text, #character-selection-container p { font-size: 1em; }
-            .choice-button { font-size: 0.95em; width: 100%; }
-            #reflection-table { font-size: 0.78em; }
+            .choice-button { font-size: 1em; width: 100%; }
+            #reflection-table { font-size: 0.8em; }
         }
     </style>
 </head>
@@ -314,11 +242,15 @@
     </div>
 
     <div class="dynamic-background">
-        <svg version="1.1" id="home-anim" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-             viewBox="0 0 1820 1080" xml:space="preserve">
+        <svg version="1.1" id="home-anim" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+             viewBox="0 0 1820 1080" style="enable-background:new 0 0 1820 1080;" xml:space="preserve">
             <g id="home">
-                <defs><rect id="masque" y="0.4" width="1820" height="1080"/></defs>
-                <clipPath id="cache"><use xlink:href="#masque" style="overflow:visible;"/></clipPath>
+                <defs>
+                    <rect id="masque" y="0.4" width="1820" height="1080"/>
+                </defs>
+                <clipPath id="cache">
+                    <use xlink:href="#masque"  style="overflow:visible;"/>
+                </clipPath>
                 <g id="light-blue">
                     <line x1="630.8" y1="894.3" x2="476.3" y2="1048.8"/> <line x1="858.2" y1="823.9" x2="1012.7" y2="669.4"/> <line x1="1066.9" y1="458.2" x2="912.4" y2="612.7"/> <line x1="1294.3" y1="387.8" x2="1448.8" y2="233.3"/> <line x1="1503" y1="22.1" x2="1348.5" y2="176.6"/> <line x1="895.6" y1="1166.6" x2="1050.1" y2="1012.1"/> <line x1="1104.3" y1="800.9" x2="949.8" y2="955.4"/> <line x1="1331.7" y1="730.5" x2="1486.2" y2="576"/> <line x1="1540.4" y1="364.8" x2="1385.9" y2="519.3"/> <line x1="1767.8" y1="294.4" x2="1922.3" y2="139.9"/> <line x1="1976.5" y1="-71.3" x2="1822" y2="83.2"/> <line x1="1369.1" y1="1073.2" x2="1523.6" y2="918.7"/> <line x1="1577.8" y1="707.5" x2="1423.3" y2="862"/> <line x1="1805.2" y1="637.1" x2="1959.7" y2="482.6"/> <line x1="1624" y1="1041.4" x2="1469.4" y2="1195.9"/> <line x1="-134.7" y1="674.9" x2="19.8" y2="520.4"/> <line x1="74" y1="309.2" x2="-80.5" y2="463.7"/> <line x1="301.4" y1="238.8" x2="455.9" y2="84.3"/> <line x1="510.1" y1="-126.9" x2="355.6" y2="27.6"/> <line x1="-88.6" y1="1008.9" x2="65.9" y2="854.4"/> <line x1="120.1" y1="643.1" x2="-34.4" y2="797.7"/> <line x1="347.5" y1="572.8" x2="502" y2="418.3"/> <line x1="556.2" y1="207.1" x2="401.7" y2="361.6"/> <line x1="783.6" y1="136.7" x2="938.1" y2="-17.8"/> <line x1="157.6" y1="985.8" x2="3" y2="1140.3"/> <line x1="384.9" y1="915.5" x2="539.4" y2="760.9"/> <line x1="593.6" y1="549.7" x2="439.1" y2="704.3"/> <line x1="821" y1="479.4" x2="975.5" y2="324.9"/> <line x1="1029.7" y1="113.6" x2="875.2" y2="268.2"/> <line x1="1257.1" y1="43.3" x2="1411.6" y2="-111.2"/>
                 </g>
@@ -335,8 +267,9 @@
     <div id="character-selection-container" class="main-container">
         <div class="image-block" id="selection-image-block">
             <span class="circleLight"></span>
-            <!-- Contenedor simplificado sin glitch pesado -->
-            <div class="c-glitch" id="selection-glitch-container"></div>
+            <div class="c-glitch" id="selection-glitch-container">
+                <div class="c-glitch__img"></div><div class="c-glitch__img"></div><div class="c-glitch__img"></div><div class="c-glitch__img"></div><div class="c-glitch__img"></div>
+            </div>
         </div>
         <h1>Ponte en mis zapatos:</h1>
         <h2 class="subtitle">El Reto Diario</h2>
@@ -352,8 +285,9 @@
     <main id="game-container" class="main-container hidden">
         <div class="image-block" id="game-image-block">
             <span class="circleLight"></span>
-            <!-- Contenedor simplificado sin glitch pesado -->
-            <div class="c-glitch" id="glitch-container"></div>
+            <div class="c-glitch" id="glitch-container">
+                <div class="c-glitch__img"></div><div class="c-glitch__img"></div><div class="c-glitch__img"></div><div class="c-glitch__img"></div><div class="c-glitch__img"></div>
+            </div>
         </div>
         <h1 id="scene-title"></h1>
         <div id="story-text"></div>
@@ -363,7 +297,7 @@
     <audio id="background-music" loop></audio>
 
     <script>
-        /* === LÓGICA ORIGINAL (sin cambios) === */
+        // --- Referencias a los elementos del DOM ---
         const characterSelectionContainer = document.getElementById('character-selection-container');
         const characterButtons = document.querySelectorAll('#character-buttons .choice-button');
         const gameContainer = document.getElementById('game-container');
@@ -373,10 +307,11 @@
         const audioElement = document.getElementById('background-music');
         
         const glitchContainer = document.getElementById('glitch-container');
-        const glitchImages = glitchContainer.querySelectorAll('.c-glitch__img'); // ahora vacío, pero no rompe
+        const glitchImages = glitchContainer.querySelectorAll('.c-glitch__img');
         const selectionGlitchContainer = document.getElementById('selection-glitch-container');
         const selectionGlitchImages = selectionGlitchContainer.querySelectorAll('.c-glitch__img');
 
+        // --- Definición de las historias y su música ---
         const mainTheme = 'audio/main_theme.mp3';
         const stories = {
             juan: {
@@ -520,6 +455,7 @@
             });
         }
 
+        // --- LÓGICA DE NAVEGACIÓN ---
         characterButtons.forEach(button => {
             button.addEventListener('click', () => {
                 const character = button.dataset.character;
@@ -531,13 +467,14 @@
             });
         });
 
+        // --- SETUP INICIAL ---
         const selectionImageUrl = `url('imgs/00.webp')`;
         selectionGlitchContainer.style.backgroundImage = selectionImageUrl;
         selectionGlitchImages.forEach(img => {
             img.style.backgroundImage = selectionImageUrl;
         });
         
-        playMusic(mainTheme);
+        playMusic(mainTheme); // Carga la música principal al inicio
 
         var mouse = { X: 0, Y: 0, CX: 0, CY: 0 },
             block = { X: mouse.X, Y: mouse.Y, CX: mouse.CX, CY: mouse.CY };
@@ -563,30 +500,17 @@
             });
         }, 20);
 
+        // --- LÓGICA DEL PRELOADER ---
         window.onload = function() {
             const preloader = document.getElementById('preloader');
             const body = document.querySelector('body');
             preloader.style.opacity = '0';
+            // Espera a que la transición de opacidad termine para quitar el preloader del DOM
             setTimeout(() => {
                 preloader.style.display = 'none';
                 body.classList.remove('loading');
-            }, 500);
+            }, 500); // 500ms coincide con la duración de la transición en el CSS
         };
-    </script>
-
-    <script>
-        // Ripple (no altera lógica)
-        document.addEventListener('click', e => {
-            const btn = e.target.closest('.choice-button');
-            if(!btn) return;
-            const rect = btn.getBoundingClientRect();
-            const ripple = document.createElement('span');
-            ripple.className = 'ripple';
-            ripple.style.left = (e.clientX - rect.left - 7) + 'px';
-            ripple.style.top  = (e.clientY - rect.top - 7) + 'px';
-            btn.appendChild(ripple);
-            ripple.addEventListener('animationend', () => ripple.remove());
-        }, { passive:true });
     </script>
 </body>
 </html>
