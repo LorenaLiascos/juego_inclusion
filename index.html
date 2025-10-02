@@ -1,516 +1,590 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ponte en mis Zapatos: El Reto Diario</title>
-    <link rel="icon" href="imgs/sena_verde.webp" type="image/png" sizes="32x32">
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&family=Work+Sans:wght@500&display=swap" rel="stylesheet">
-    
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<meta charset="UTF-8">
+<title>Ponte en mis Zapatos: El Reto Diario</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <style>
-        /* --- VARIABLES GLOBALES DE COLOR Y ESTILO --- */
-        :root {
-            --color-primario: #00BFFF;
-            --color-secundario: #F8C548;
-            --color-texto: #EAEAEA;
-            --color-sombra: rgba(0, 0, 0, 0.5);
-            --color-fondo-boton: #1B2735;
-        }
+<link rel="icon" href="./imgs/sena_verde.webp" type="image/png" sizes="32x32">
+<!-- Preload de la imagen principal -->
+<link rel="preload" as="image" href="./imgs/00.webp">
 
-        /* --- ESTILOS GENERALES Y FONDO --- */
-        body {
-            color: var(--color-texto);
-            font-family: 'Poppins', sans-serif;
-            display: flex;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 40px 20px;
-            box-sizing: border-box;
-            perspective: 500px;
-            overflow-x: hidden;
-            /* Se mantiene 'auto' para permitir scroll si el contenido lo necesita */
-            overflow-y: auto;
-            background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
-        }
-        
-        /* --- [NUEVO] ESTILOS PARA EL FONDO DINÁMICO SVG --- */
-        .dynamic-background {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            overflow: hidden;
-        }
+<!-- Fuentes (display=swap ya implícito) -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&family=Work+Sans:wght@500&display=swap" rel="stylesheet">
 
-        #home-anim {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+<style>
+:root {
+  --color-primario:#00BFFF;
+  --color-secundario:#F8C548;
+  --color-texto:#EAEAEA;
+  --color-sombra:rgba(0,0,0,.5);
+  --color-fondo-boton:#1B2735;
+  --color-fondo-panel:rgba(27,39,53,.45);
+  --transition: .45s cubic-bezier(.4,.2,.2,1);
+  --max-ancho:800px;
+}
+* { box-sizing:border-box; }
+html,body { margin:0; padding:0; }
+body {
+  font-family:'Poppins',sans-serif;
+  background:radial-gradient(ellipse at bottom,#1B2735 0%,#090A0F 100%);
+  color:var(--color-texto);
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  padding:40px 20px;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+body.loading .main-container { opacity:0; }
+body:not(.loading) .main-container { opacity:1; transition:opacity .6s ease; }
 
-        #home {
-            clip-path: url(#cache);
-        }
+.dynamic-background {
+  position:fixed; inset:0; z-index:0; overflow:hidden;
+  pointer-events:none;
+  opacity:.55;
+}
 
-        #red { /* Se usará el color secundario */
-            fill: none;
-            opacity: 0.15;
-            stroke: var(--color-secundario);
-            stroke-width: 12;
-            stroke-miterlimit:10;
-            animation: show 4s;
-            animation-fill-mode: forwards;
-            animation-iteration-count: infinite;
-            animation-timing-function: ease-in-out; 
-        }
+.main-container {
+  width:100%; max-width:var(--max-ancho);
+  background:var(--color-fondo-panel);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:20px;
+  padding:2rem;
+  position:relative;
+  box-shadow:0 10px 30px var(--color-sombra);
+  z-index:2;
+  text-align:center;
+}
 
-        #blue { /* Se usará el color primario */
-            fill: none;
-            opacity: 0.15;
-            stroke: var(--color-primario);
-            stroke-width: 12;
-            stroke-miterlimit:10;
-            animation: show 4s;
-            animation-fill-mode: forwards;
-            animation-iteration-count: infinite;
-            animation-timing-function: ease-in-out;
-        }
+h1,h2 { margin:0; line-height:1.15; }
+#character-selection-container h1 { color:var(--color-secundario); font-size:2.4em; }
+#character-selection-container h2.subtitle { color:var(--color-secundario); font-size:1.8em; font-family:'Work Sans',sans-serif; margin-top:.4rem; }
+#character-selection-container p { font-size:1.05em; line-height:1.65; margin:1.2rem 0 1.4rem; }
 
-        #light-blue { /* Se usará el color primario */
-            fill: none;
-            opacity: 0.15;
-            stroke: var(--color-primario);
-            stroke-width: 6;
-            stroke-miterlimit:10;
-            stroke-dasharray: 200;
-            stroke-dashoffset: 800;
-            animation: draw 4s;
-            animation-fill-mode: forwards;
-            animation-iteration-count: infinite;
-            animation-timing-function: ease-in-out;    
-        }
+.image-block {
+  width:100%; height:450px;
+  border-radius:14px;
+  overflow:hidden;
+  position:relative;
+  margin-bottom:1.7rem;
+  background:#000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  will-change:transform;
+  transition:box-shadow .6s;
+}
+.image-block:hover { box-shadow:0 0 55px #111; }
+.image-block img {
+  width:100%; height:100%;
+  object-fit:cover;
+  display:block;
+  aspect-ratio:16/9;
+  background:#111;
+  font-style:italic;
+}
+.circleLight {
+  position:absolute; inset:0;
+  background:radial-gradient(circle at 50% 50%,#fff,transparent 60%);
+  mix-blend-mode:screen;
+  opacity:0;
+  transition:opacity .5s;
+  pointer-events:none;
+}
+.image-block:hover .circleLight { opacity:.18; }
 
-        @keyframes draw {
-            to {
-                stroke-dashoffset: 0;
-            }
-        }
+#scene-title { color:var(--color-secundario); font-size:2.05em; margin:0 0 1rem; }
+#story-text { font-size:1.02em; line-height:1.6; min-height:110px; display:flex; align-items:center; justify-content:center; }
 
-        @keyframes show {
-            0% { opacity: 0.15; }
-            50% { opacity: 0.2; }
-            100% { opacity: 0.15; }
-        }
+#character-buttons,
+#choices-container {
+  display:flex; flex-direction:column;
+  gap:1rem;
+  align-items:center;
+  margin-top:1.2rem;
+}
 
-        /* --- CONTENEDOR PRINCIPAL CON EFECTO GLASSMORPHISM --- */
-        .main-container {
-            background: rgba(27, 39, 53, 0.45);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 2rem;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px var(--color-sombra);
-            width: 100%;
-            max-width: 800px;
-            text-align: center;
-            position: relative; 
-            z-index: 2; 
-        }
+.choice-button {
+  position:relative;
+  width:80%; max-width:480px;
+  padding:.85em 2.2em;
+  background:#fff;
+  color:var(--color-fondo-boton);
+  border:none;
+  border-radius:.55em;
+  text-transform:uppercase;
+  font-family:'Work Sans',sans-serif;
+  font-weight:500;
+  font-size:1.05em;
+  letter-spacing:.045em;
+  cursor:pointer;
+  transition:background var(--transition), color var(--transition), transform .25s ease;
+  box-shadow:0 4px 14px -4px rgba(0,0,0,.55);
+}
+.choice-button span { pointer-events:none; }
+.choice-button:hover,
+.choice-button:focus-visible {
+  background:var(--color-secundario);
+  color:#111;
+  outline:none;
+}
+.choice-button:active { transform:scale(.97); }
 
-        /* --- ESTILOS DE LA PORTADA Y SELECCIÓN DE PERSONAJE --- */
-        #character-selection-container h1 { color: var(--color-secundario); font-size: 2.5em; margin-bottom: 0.5rem; }
-        #character-selection-container h2.subtitle { color: var(--color-secundario); font-size: 2em; margin-bottom: 1.5rem; font-family: 'Work Sans', sans-serif; }
-        #character-selection-container p { font-size: 1.2em; line-height: 1.7; margin: 1rem 0; }
-        
-        #character-buttons { 
-            display: flex; 
-            flex-direction: column; 
-            gap: 1rem; 
-            margin-top: 2rem; 
-            align-items: center;
-        }
+#reflection-table { width:100%; border-collapse:collapse; margin-top:1rem; font-size:.9em; }
+#reflection-table th,#reflection-table td {
+  border:2px solid var(--color-primario);
+  padding:12px;
+  text-align:left;
+  vertical-align:top;
+}
+#reflection-table th { background:var(--color-primario); color:#fff; font-size:1.05em; }
+#reflection-table td strong { color:var(--color-secundario); }
+.ponte-en-tus-zapatos { background:rgba(27,39,53,.7); font-style:italic; }
 
-        /* --- ESTILOS DE TEXTOS DEL JUEGO--- */
-        #scene-title { color: var(--color-secundario); font-size: 2em; margin-top: 0; margin-bottom: 1rem; }
-        #story-text { font-size: 1.1em; line-height: 1.7; min-height: 100px; display: flex; align-items: center; justify-content: center; }
+.hidden { display:none !important; }
 
-        /* --- ESTILOS DE LOS BOTONES --- */
-        #choices-container { margin-top: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; align-items: center; }
-        .choice-button { 
-            display: block; position: relative; padding: .8em 2.2em; cursor: pointer; 
-            background: #FFFFFF; border: none; border-radius: .4em; text-transform: uppercase; 
-            font-size: 1.2em; font-family: "Work Sans", sans-serif; font-weight: 500; letter-spacing: 0.04em; 
-            perspective: 500px; transform-style: preserve-3d; width: 80%; 
-        }
-        .choice-button span { display: block; color: var(--color-fondo-boton); }
-        .choice-button:before, .choice-button:after { --z: 0px; position: absolute; top: 0; left: 0; display: block; content: ''; width: 100%; height: 100%; opacity: 0; mix-blend-mode: color-dodge; border-radius: inherit; transform-style: preserve-3d; transform: translate3d(calc(var(--z) * 0px), calc(var(--z) * 0px), calc(var(--z) * 0px)); }
-        .choice-button:after { background-color: #FF1731; }
-        .choice-button:before { background-color: var(--color-primario); }
-        .choice-button:hover { background-color: var(--color-secundario); transition: background .3s 0.1s; }
-        .choice-button:hover span { color: var(--color-fondo-boton); }
-        .choice-button:hover:before { --z: 0.04; animation: translateWobble 2.2s ease forwards; }
-        .choice-button:hover:after { --z: -0.06; animation: translateWobble 2.2s ease forwards; }
-        @keyframes translateWobble { 0% { opacity: 0; transform: translate3d(calc(var(--z) * 0px), calc(var(--z) * 0px), calc(var(--z) * 0px)); } 16% { transform: translate3d(calc(var(--z) * 160px), calc(var(--z) * 160px), calc(var(--z) * 160px)); } 28% { opacity: 1; transform: translate3d(calc(var(--z) * 70px), calc(var(--z) * 70px), calc(var(--z) * 70px)); } 44% { transform: translate3d(calc(var(--z) * 130px), calc(var(--z) * 130px), calc(var(--z) * 130px)); } 59% { transform: translate3d(calc(var(--z) * 85px), calc(var(--z) * 85px), calc(var(--z) * 85px)); } 73% { transform: translate3d(calc(var(--z) * 110px), calc(var(--z) * 110px), calc(var(--z) * 110px)); } 88% { opacity: 1; transform: translate3d(calc(var(--z) * 90px), calc(var(--z) * 90px), calc(var(--z) * 90px)); } 100% { opacity: 1; transform: translate3d(calc(var(--z) * 100px), calc(var(--z) * 100px), calc(var(--z) * 100px)); } }
+.tools-bar {
+  display:flex;
+  gap:.75rem;
+  flex-wrap:wrap;
+  justify-content:center;
+  margin-top:1.2rem;
+}
 
-        /* --- ESTILOS DE LA TABLA DE REFLEXIÓN FINAL --- */
-        #reflection-table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.9em; }
-        #reflection-table th, #reflection-table td { border: 2px solid var(--color-primario); padding: 12px; text-align: left; vertical-align: top; }
-        #reflection-table th { background-color: var(--color-primario); color: #ffffff; font-size: 1.1em; }
-        .ponte-en-tus-zapatos { background-color: rgba(27, 39, 53, 0.7); font-style: italic; }
-        #reflection-table td strong { color: var(--color-secundario); }
-        
-        /* --- ESTILOS PARA EL EFECTO 3D Y LUZ EN LA IMAGEN --- */
-        .image-block { width: 100%; height: 450px; border-radius: 10px; position: relative; margin-bottom: 1.5rem; transition: box-shadow 0.5s; }
-        .image-block:hover { box-shadow: 0px 0px 70px #111; }
-        .image-block .circleLight { top: 0; left: 0; opacity: 0; content: ''; width: 100%; height: 100%; display: block; transition: 0.5s; position: absolute; border-radius: 10px; background: radial-gradient(circle at 50% 50%, #fff, transparent); }
-        .image-block:hover .circleLight { opacity: 0.2; }
+.tool-btn {
+  background:#1B2735;
+  color:var(--color-secundario);
+  border:1px solid var(--color-secundario);
+  border-radius:.5em;
+  padding:.55em 1em;
+  font-size:.85em;
+  cursor:pointer;
+  letter-spacing:.05em;
+  transition:background .35s,color .35s,border-color .35s;
+}
+.tool-btn:hover,
+.tool-btn:focus-visible {
+  background:var(--color-secundario);
+  color:#1B2735;
+  outline:none;
+}
 
-        /* --- ESTILOS PARA EL EFECTO GLITCH --- */
-        .c-glitch, .c-glitch__img { background-repeat: no-repeat; background-position: center center; background-size: contain; }
-        .c-glitch { height: 100%; width: 100%; overflow: hidden; position: relative; background-color: #000; border-radius: 10px; }
-        .c-glitch__img { height: 100%; left: 0; pointer-events: none; position: absolute; top: 0; transform: translate3d(0, 0, 0); width: 100%; }
-        .c-glitch:hover .c-glitch__img:nth-child(n+2) { animation: 2s linear 0s infinite forwards glitch-anim-1; }
-        .c-glitch:hover .c-glitch__img:nth-child(2) { animation-name: glitch-anim-1; }
-        .c-glitch:hover .c-glitch__img:nth-child(3) { animation-name: glitch-anim-2; }
-        .c-glitch:hover .c-glitch__img:nth-child(4) { animation-name: glitch-anim-3; }
-        .c-glitch:hover .c-glitch__img:nth-child(5) { animation-name: glitch-anim-4; background-blend-mode: overlay; background-color: #af4949; }
-        .c-glitch__img:nth-child(n+2) { opacity: 0; }
-        @keyframes glitch-anim-1 { 0%, 100% { opacity: 1; transform: translate3d(20px, 0, 0) scale3d(-1, -1, 1); clip-path: polygon(0 2%, 100% 2%, 100% 5%, 0 5%); } 20% { clip-path: polygon(0 15%, 100% 15%, 100% 15%, 0 15%); } 30% { clip-path: polygon(0 10%, 100% 10%, 100% 20%, 0 20%); } 40% { clip-path: polygon(0 1%, 100% 1%, 100% 2%, 0 2%); } 50% { clip-path: polygon(0 33%, 100% 33%, 100% 33%, 0 33%); } 60% { clip-path: polygon(0 50%, 100% 50%, 100% 20%, 0 20%); } 70% { clip-path: polygon(0 80%, 100% 80%, 100% 80%, 0 80%); } 80% { clip-path: polygon(0 50%, 100% 50%, 100% 55%, 0 55%); } 95% { clip-path: polygon(0 72%, 100% 72%, 100% 78%, 0 78%); } }
-        @keyframes glitch-anim-2 { 0%, 100% { opacity: 1; transform: translate3d(-10px, 0, 0); clip-path: polygon(0 25%, 100% 25%, 100% 30%, 0 30%); } 10% { clip-path: polygon(0 3%, 100% 3%, 100% 3%, 0 3%); } 19% { clip-path: polygon(0 40%, 100% 40%, 100% 40%, 0 40%); } 33% { clip-path: polygon(0 52%, 100% 52%, 100% 59%, 0 59%); } 45% { clip-path: polygon(0 65%, 100% 65%, 100% 40%, 0 40%); } 50% { clip-path: polygon(0 14%, 100% 14%, 100% 33%, 0 33%); } 70% { clip-path: polygon(0 65%, 100% 65%, 100% 60%, 0 60%); } 90% { clip-path: polygon(0 55%, 100% 55%, 100% 65%, 0 65%); } }
-        @keyframes glitch-anim-3 { 0%, 100% { opacity: 1; transform: translate3d(0, -5px, 0) scale3d(-1, -1, 1); clip-path: polygon(0 1%, 100% 1%, 100% 3%, 0 3%); } 11% { clip-path: polygon(0 5%, 100% 5%, 100% 6%, 0 6%); } 35% { clip-path: polygon(0 30%, 100% 30%, 100% 25%, 0 25%); } 56% { clip-path: polygon(0 60%, 100% 60%, 100% 55%, 0 55%); } 77% { clip-path: polygon(0 80%, 100% 80%, 100% 75%, 0 75%); } 92% { clip-path: polygon(0 100%, 100% 100%, 100% 99%, 0 99%); } }
-        @keyframes glitch-anim-4 { 0%, 5% { opacity: 0.2; transform: translate3d(10px, 5px, 0); } 5.5%, 100% { opacity: 0; transform: translate3d(0, 0, 0); } }
+#preload-progress {
+  width:100%; height:6px;
+  background:rgba(255,255,255,.15);
+  border-radius:4px;
+  overflow:hidden;
+  margin:10px auto 0;
+  position:relative;
+  max-width:480px;
+}
+#preload-progress span {
+  display:block;
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,var(--color-primario),var(--color-secundario));
+  transition:width .4s ease;
+}
 
-        /* --- CLASE UTILITARIA PARA OCULTAR ELEMENTOS --- */
-        .hidden { display: none !important; }
-        
-        /* --- ESTILOS PARA EL PRELOADER --- */
-        #preloader {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 9999;
-            background: #090A0F;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: opacity 0.5s ease-out;
-        }
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid rgba(0, 191, 255, 0.3);
-            border-top-color: var(--color-secundario);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-        /* Clase para ocultar el contenido principal mientras carga */
-        body.loading > *:not(#preloader) {
-            display: none;
-        }
+#enable-audio { order:2; }
+#toggle-preload-log { order:3; }
 
-        /* --- DISEÑO RESPONSIVO PARA DISPOSITIVOS MÓVILES --- */
-        @media (max-width: 768px) {
-            body { padding: 20px 10px; }
-            .main-container, #intro-container { padding: 1rem; }
-            .image-block, .c-glitch { height: 250px; }
-            #scene-title, #character-selection-container h1 { font-size: 1.5em; }
-            #story-text, #character-selection-container p { font-size: 1em; }
-            .choice-button { font-size: 1em; width: 100%; }
-            #reflection-table { font-size: 0.8em; }
-        }
-    </style>
+#preload-log {
+  max-height:140px;
+  overflow:auto;
+  font-size:.7rem;
+  font-family:monospace;
+  background:#0e151c;
+  padding:.5rem .65rem;
+  border:1px solid #133445;
+  border-radius:6px;
+  margin:0 auto;
+  text-align:left;
+  display:none;
+}
+
+@media (max-width:768px){
+  body { padding:22px 10px; }
+  .image-block { height:250px; }
+  #character-selection-container h1 { font-size:1.9em; }
+  #character-selection-container h2.subtitle { font-size:1.35em; }
+  #scene-title { font-size:1.45em; }
+  .choice-button { width:100%; font-size:.95em; }
+  #reflection-table { font-size:.78em; }
+}
+
+/* Preferencias de usuario: reducir movimiento */
+@media (prefers-reduced-motion:reduce){
+  .image-block,
+  .choice-button { transition:none !important; }
+  .image-block:hover .circleLight { opacity:0 !important; }
+}
+</style>
 </head>
 <body class="loading">
-    <div id="preloader">
-        <div class="spinner"></div>
-    </div>
 
-    <div class="dynamic-background">
-        <svg version="1.1" id="home-anim" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-             viewBox="0 0 1820 1080" style="enable-background:new 0 0 1820 1080;" xml:space="preserve">
-            <g id="home">
-                <defs>
-                    <rect id="masque" y="0.4" width="1820" height="1080"/>
-                </defs>
-                <clipPath id="cache">
-                    <use xlink:href="#masque"  style="overflow:visible;"/>
-                </clipPath>
-                <g id="light-blue">
-                    <line x1="630.8" y1="894.3" x2="476.3" y2="1048.8"/> <line x1="858.2" y1="823.9" x2="1012.7" y2="669.4"/> <line x1="1066.9" y1="458.2" x2="912.4" y2="612.7"/> <line x1="1294.3" y1="387.8" x2="1448.8" y2="233.3"/> <line x1="1503" y1="22.1" x2="1348.5" y2="176.6"/> <line x1="895.6" y1="1166.6" x2="1050.1" y2="1012.1"/> <line x1="1104.3" y1="800.9" x2="949.8" y2="955.4"/> <line x1="1331.7" y1="730.5" x2="1486.2" y2="576"/> <line x1="1540.4" y1="364.8" x2="1385.9" y2="519.3"/> <line x1="1767.8" y1="294.4" x2="1922.3" y2="139.9"/> <line x1="1976.5" y1="-71.3" x2="1822" y2="83.2"/> <line x1="1369.1" y1="1073.2" x2="1523.6" y2="918.7"/> <line x1="1577.8" y1="707.5" x2="1423.3" y2="862"/> <line x1="1805.2" y1="637.1" x2="1959.7" y2="482.6"/> <line x1="1624" y1="1041.4" x2="1469.4" y2="1195.9"/> <line x1="-134.7" y1="674.9" x2="19.8" y2="520.4"/> <line x1="74" y1="309.2" x2="-80.5" y2="463.7"/> <line x1="301.4" y1="238.8" x2="455.9" y2="84.3"/> <line x1="510.1" y1="-126.9" x2="355.6" y2="27.6"/> <line x1="-88.6" y1="1008.9" x2="65.9" y2="854.4"/> <line x1="120.1" y1="643.1" x2="-34.4" y2="797.7"/> <line x1="347.5" y1="572.8" x2="502" y2="418.3"/> <line x1="556.2" y1="207.1" x2="401.7" y2="361.6"/> <line x1="783.6" y1="136.7" x2="938.1" y2="-17.8"/> <line x1="157.6" y1="985.8" x2="3" y2="1140.3"/> <line x1="384.9" y1="915.5" x2="539.4" y2="760.9"/> <line x1="593.6" y1="549.7" x2="439.1" y2="704.3"/> <line x1="821" y1="479.4" x2="975.5" y2="324.9"/> <line x1="1029.7" y1="113.6" x2="875.2" y2="268.2"/> <line x1="1257.1" y1="43.3" x2="1411.6" y2="-111.2"/>
-                </g>
-                <g id="red">
-                    <line x1="794.4" y1="883.4" x2="639.8" y2="1037.9"/> <line x1="694.6" y1="834.8" x2="849.2" y2="680.3"/> <line x1="1230.4" y1="447.3" x2="1075.9" y2="601.8"/> <line x1="1130.7" y1="398.7" x2="1285.2" y2="244.2"/> <line x1="1666.5" y1="11.2" x2="1512" y2="165.7"/> <line x1="732" y1="1177.5" x2="886.6" y2="1023"/> <line x1="1267.9" y1="790" x2="1113.3" y2="944.5"/> <line x1="1168.1" y1="741.4" x2="1322.7" y2="586.9"/> <line x1="1703.9" y1="353.9" x2="1549.4" y2="508.4"/> <line x1="1604.2" y1="305.3" x2="1758.7" y2="150.8"/> <line x1="1205.5" y1="1084.1" x2="1360.1" y2="929.6"/> <line x1="1741.4" y1="696.5" x2="1586.8" y2="851.1"/> <line x1="1641.6" y1="648" x2="1796.2" y2="493.5"/> <line x1="1787.5" y1="1030.5" x2="1633" y2="1185"/> <line x1="1687.8" y1="981.9" x2="1842.3" y2="827.4"/> <line x1="200.1" y1="-44.4" x2="45.6" y2="110.1"/> <line x1="237.5" y1="298.3" x2="83" y2="452.8"/> <line x1="137.8" y1="249.7" x2="292.3" y2="95.2"/> <line x1="673.6" y1="-137.8" x2="519.1" y2="16.7"/> <line x1="283.7" y1="632.2" x2="129.2" y2="786.8"/> <line x1="184" y1="583.7" x2="338.5" y2="429.2"/> <line x1="719.8" y1="196.2" x2="565.2" y2="350.7"/> <line x1="620" y1="147.6" x2="774.6" y2="-6.9"/> <line x1="321.1" y1="974.9" x2="166.6" y2="1129.4"/> <line x1="221.4" y1="926.4" x2="375.9" y2="771.8"/> <line x1="757.2" y1="538.8" x2="602.7" y2="693.4"/> <line x1="657.5" y1="490.3" x2="812" y2="335.8"/> <line x1="1193.3" y1="102.7" x2="1038.7" y2="257.3"/> <line x1="1093.5" y1="54.2" x2="1248.1" y2="-100.3"/>
-                </g>
-                <g id="blue">
-                    <line x1="225.8" y1="1151" x2="534.9" y2="841.9"/> <line x1="827.1" y1="1003.3" x2="518" y2="1312.3"/> <line x1="661.9" y1="714.9" x2="971" y2="405.9"/> <line x1="1263.1" y1="567.2" x2="954.1" y2="876.3"/> <line x1="1098" y1="278.8" x2="1407.1" y2="-30.2"/> <line x1="1699.2" y1="131.1" x2="1390.2" y2="440.2"/> <line x1="699.3" y1="1057.6" x2="1008.4" y2="748.5"/> <line x1="1300.6" y1="909.9" x2="991.5" y2="1218.9"/> <line x1="1135.4" y1="621.5" x2="1444.5" y2="312.4"/> <line x1="1736.6" y1="473.8" x2="1427.6" y2="782.8"/> <line x1="1571.5" y1="185.4" x2="1880.6" y2="-123.6"/> <line x1="1172.8" y1="964.2" x2="1481.9" y2="655.1"/> <line x1="1774.1" y1="816.5" x2="1465" y2="1125.5"/> <line x1="1608.9" y1="528.1" x2="1918" y2="219"/> <line x1="1219" y1="1298.1" x2="1528" y2="989.1"/> <line x1="1655.1" y1="862" x2="1964.1" y2="553"/> <line x1="232.8" y1="75.5" x2="-76.2" y2="384.6"/> <line x1="270.2" y1="418.2" x2="-38.8" y2="727.3"/> <line x1="105.1" y1="129.8" x2="414.2" y2="-179.2"/> <line x1="706.3" y1="-17.9" x2="397.3" y2="291.2"/> <line x1="-284.8" y1="899.9" x2="24.2" y2="590.8"/> <line x1="316.4" y1="752.2" x2="7.3" y2="1061.2"/> <line x1="151.3" y1="463.8" x2="460.3" y2="154.7"/> <line x1="752.5" y1="316.1" x2="443.4" y2="625.1"/> <line x1="587.3" y1="27.7" x2="896.4" y2="-281.4"/> <line x1="1188.6" y1="-120" x2="879.5" y2="189"/> <line x1="-247.4" y1="1242.5" x2="61.6" y2="933.5"/> <line x1="188.7" y1="806.4" x2="497.7" y2="497.4"/> <line x1="789.9" y1="658.8" x2="480.8" y2="967.8"/> <line x1="624.8" y1="370.4" x2="933.8" y2="61.3"/> <line x1="1226" y1="222.7" x2="916.9" y2="531.7"/> <line x1="1662.1" y1="-213.4" x2="1353" y2="95.6"/>
-                </g>
-            </g>
-        </svg>
-    </div>
-    
-    <div id="character-selection-container" class="main-container">
-        <div class="image-block" id="selection-image-block">
-            <span class="circleLight"></span>
-            <div class="c-glitch" id="selection-glitch-container">
-                <div class="c-glitch__img"></div><div class="c-glitch__img"></div><div class="c-glitch__img"></div><div class="c-glitch__img"></div><div class="c-glitch__img"></div>
-            </div>
-        </div>
-        <h1>Ponte en mis zapatos:</h1>
-        <h2 class="subtitle">El Reto Diario</h2>
-        <p>Estás a punto de iniciar una simulación. Aquí no hay puntos ni ganadores. El objetivo es experimentar, por un momento, los desafíos diarios que enfrentan las personas con discapacidad.</p>
-        <div id="character-buttons">
-            <button class="choice-button" data-character="juan"><span>El Reto de Juan</span></button>
-            <button class="choice-button" data-character="leo"><span>El Reto de Leo</span></button>
-            <button class="choice-button" data-character="ana"><span>El Reto de Ana</span></button>
-            <button class="choice-button" data-character="sofia"><span>El Reto de Sofía</span></button>
-        </div>
-    </div>
+<!-- Fondo decorativo (simplificado para rendimiento) -->
+<div class="dynamic-background" aria-hidden="true">
+  <svg width="100%" height="100%" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+    <defs>
+      <radialGradient id="g1" cx="50%" cy="70%" r="75%">
+        <stop offset="0%" stop-color="#1B2735"/>
+        <stop offset="100%" stop-color="#090A0F"/>
+      </radialGradient>
+    </defs>
+    <rect width="1600" height="900" fill="url(#g1)"></rect>
+    <g stroke="#00BFFF22" stroke-width="2">
+      <circle cx="200" cy="160" r="90"/>
+      <circle cx="1400" cy="300" r="120"/>
+      <circle cx="900" cy="700" r="160"/>
+    </g>
+  </svg>
+</div>
 
-    <main id="game-container" class="main-container hidden">
-        <div class="image-block" id="game-image-block">
-            <span class="circleLight"></span>
-            <div class="c-glitch" id="glitch-container">
-                <div class="c-glitch__img"></div><div class="c-glitch__img"></div><div class="c-glitch__img"></div><div class="c-glitch__img"></div><div class="c-glitch__img"></div>
-            </div>
-        </div>
-        <h1 id="scene-title"></h1>
-        <div id="story-text"></div>
-        <div id="choices-container"></div>
-    </main>
+<!-- Selección de personaje -->
+<div id="character-selection-container" class="main-container" aria-live="polite">
+  <div class="image-block" id="selection-image-block">
+    <span class="circleLight"></span>
+    <img id="selection-image" src="./imgs/00.webp" alt="Escena introductoria del simulador" loading="eager" decoding="async">
+  </div>
+  <h1>Ponte en mis zapatos:</h1>
+  <h2 class="subtitle">El Reto Diario</h2>
+  <p>Estás a punto de iniciar una simulación. Aquí no hay puntos ni ganadores. El objetivo es experimentar, por un momento, los desafíos diarios que enfrentan las personas con discapacidad.</p>
 
-    <audio id="background-music" loop></audio>
+  <div id="character-buttons">
+    <button class="choice-button" data-character="juan"><span>El Reto de Juan</span></button>
+    <button class="choice-button" data-character="leo"><span>El Reto de Leo</span></button>
+    <button class="choice-button" data-character="ana"><span>El Reto de Ana</span></button>
+    <button class="choice-button" data-character="sofia"><span>El Reto de Sofía</span></button>
+  </div>
 
-    <script>
-        // --- Referencias a los elementos del DOM ---
-        const characterSelectionContainer = document.getElementById('character-selection-container');
-        const characterButtons = document.querySelectorAll('#character-buttons .choice-button');
-        const gameContainer = document.getElementById('game-container');
-        const storyTextElement = document.getElementById('story-text');
-        const choicesContainerElement = document.getElementById('choices-container');
-        const sceneTitleElement = document.getElementById('scene-title');
-        const audioElement = document.getElementById('background-music');
-        
-        const glitchContainer = document.getElementById('glitch-container');
-        const glitchImages = glitchContainer.querySelectorAll('.c-glitch__img');
-        const selectionGlitchContainer = document.getElementById('selection-glitch-container');
-        const selectionGlitchImages = selectionGlitchContainer.querySelectorAll('.c-glitch__img');
+  <div class="tools-bar">
+    <button id="enable-audio" class="tool-btn" type="button">Activar sonido</button>
+    <button id="toggle-preload-log" class="tool-btn" type="button">Ver progreso imágenes</button>
+  </div>
 
-        // --- Definición de las historias y su música ---
-        const mainTheme = 'audio/main_theme.mp3';
-        const stories = {
-            juan: {
-                music: 'audio/juan_theme.mp3',
-                scenes: [
-                    { id: 1, title: "El Reto de Juan", text: "Son las 8:00 a.m. Tu examen final es a las 9:00 a.m. Sales de casa.", image: "juego_1_ponte_mis_zapatos/juan/img/1.webp", choices: [ { text: "Avanzar por el andén", nextSceneId: 2 } ] },
-                    { id: 2, title: "Primera Barrera", text: "A solo una cuadra, un carro bloquea el andén. Es imposible pasar.", image: "juego_1_ponte_mis_zapatos/juan/img/2.webp", choices: [ { text: "Bajar a la calle para rodearlo", nextSceneId: 3 }, { text: "Esperar y pedir ayuda", nextSceneId: 4 } ] },
-                    { id: 3, title: "Ruta Peligrosa", text: "Bajas a la calle. Los carros pasan rápido y te sientes vulnerable. Llegas al paradero, pero has perdido tiempo valioso.", image: "juego_1_ponte_mis_zapatos/juan/img/3.webp", choices: [ { text: "Esperar el bus", nextSceneId: 5 } ] },
-                    { id: 5, title: "Bus Inaccesible", text: "Llega tu ruta, pero es un bus antiguo sin rampa. El conductor te ve y sigue de largo. La frustración es enorme.", image: "juego_1_ponte_mis_zapatos/juan/img/4.webp", choices: [ { text: "Esperar el siguiente bus", nextSceneId: 6 } ] },
-                    { id: 6, title: "Final Desastroso", text: "El siguiente bus tarda 20 minutos en llegar. Cuando por fin subes, ya es demasiado tarde. Has perdido el examen final.", image: "juego_1_ponte_mis_zapatos/juan/img/noc.webp", choices: [ { text: "Ver Reflexión", nextSceneId: 7 } ] },
-                    { 
-                        id: 7, title: "Reflexión: Exclusión", image: "juego_1_ponte_mis_zapatos/juan/img/exj.webp", 
-                        text: `<table id="reflection-table"><tr><th colspan="2">Análisis del Reto de Juan</th></tr><tr><td><strong>Resultado:</strong><br>Fallaste en tu objetivo por barreras fuera de tu control.</td><td><strong>Causas:</strong><br>• Infraestructura deficiente (andenes, buses).<br>• Falta de empatía y civismo.</td></tr><tr><td colspan="2" class="ponte-en-tus-zapatos"><strong>Reflexión:</strong><br>A veces, no importa cuánto te esfuerces, si el sistema no es inclusivo, te deja por fuera. La exclusión es el resultado de un entorno que no está diseñado para todos.</td></tr></table>`, 
-                        choices: [ { text: "Elegir otro reto", nextSceneId: 'character_select' } ] 
-                    },
-                    { id: 4, title: "Pidiendo Ayuda", text: "Decides esperar. La primera persona te ignora, pero insistes. Una segunda persona se detiene y te ayuda a pasar de forma segura.", image: "juego_1_ponte_mis_zapatos/juan/img/7.webp", choices: [ { text: "Agradecer y continuar", nextSceneId: 8 } ] },
-                    { id: 8, title: "Un Aliado", text: "La persona que te ayudó se indigna por el carro mal parqueado y decide reportarlo. Juntos llegan al paradero.", image: "juego_1_ponte_mis_zapatos/juan/img/alj.webp", choices: [ { text: "Esperar el bus en compañía", nextSceneId: 9 } ] },
-                    { id: 9, title: "Final Positivo", text: "El primer bus es inaccesible, pero el segundo, que llega rápido, sí tiene rampa. Subes y llegas a tu examen justo a tiempo. La ayuda de una persona marcó la diferencia.", image: "juego_1_ponte_mis_zapatos/juan/img/fnj.webp", choices: [ { text: "Ver Reflexión", nextSceneId: 10 } ] },
-                    { 
-                        id: 10, title: "Reflexión: El Poder de la Ayuda", image: "juego_1_ponte_mis_zapatos/juan/img/ayj.webp",
-                        text: `<table id="reflection-table"><tr><th colspan="2">Análisis del Reto de Juan</th></tr><tr><td><strong>Resultado:</strong><br>Lograste tu objetivo a pesar de las dificultades.</td><td><strong>Clave del Éxito:</strong><br>• Tu paciencia y perseverancia.<br>• La empatía y acción de otra persona.</td></tr><tr><td colspan="2" class="ponte-en-tus-zapatos"><strong>Reflexión:</strong><br>Las barreras sistémicas son difíciles de superar en solitario. La empatía y la disposición a ayudar de los demás pueden ser el puente que garantiza la inclusión y la igualdad de oportunidades.</td></tr></table>`, 
-                        choices: [ { text: "Elegir otro reto", nextSceneId: 'character_select' } ]
-                    }
-                ]
-            },
-            leo: {
-                music: 'audio/leo_theme.mp3',
-                scenes: [
-                    { id: 11, title: "El Reto de Leo", text: "Necesitas comprar tres ingredientes. Coges tu bastón y sales de casa.", image: "juego_1_ponte_mis_zapatos/leo/1.webp", choices: [{ text: "Comenzar a caminar", nextSceneId: 12 }] },
-                    { id: 12, title: "Primera Barrera", text: "Sigues la línea guía del andén, pero tu bastón cae en un hueco. Es una alcantarilla abierta.", image: "juego_1_ponte_mis_zapatos/leo/2.webp", choices: [{ text: "Intentar rodearla por tu cuenta", nextSceneId: 13 }, { text: "Pedir orientación", nextSceneId: 14 }] },
-                    { id: 13, title: "Rodeando a Ciegas", text: "Te mueves hacia la pared para rodear el peligro, pero te golpeas con una señal de tráfico mal ubicada. Entras al supermercado frustrado.", image: "juego_1_ponte_mis_zapatos/leo/3.webp", choices: [{ text: "Buscar los productos solo", nextSceneId: 15 }] },
-                    { id: 15, title: "Final Desastroso", text: "Intentas encontrar los productos al tacto. Después de mucho tiempo, llegas a la caja y el cajero te informa que has cogido lasaña y arvejas. Frustrado, decides irte sin nada.", image: "juego_1_ponte_mis_zapatos/leo/7.webp", choices: [{ text: "Ver Reflexión", nextSceneId: 16 }] },
-                    { 
-                        id: 16, title: "Reflexión: Falta de Apoyo", image: "juego_1_ponte_mis_zapatos/leo/8.webp",
-                        text: `<table id="reflection-table"><tr><th colspan="2">Análisis del Reto de Leo</th></tr><tr><td><strong>Resultado:</strong><br>No lograste tu objetivo y te fuiste con las manos vacías.</td><td><strong>Causas:</strong><br>• Entorno físico peligroso e inaccesible.<br>• Falta de sistemas de apoyo en el comercio.</td></tr><tr><td colspan="2" class="ponte-en-tus-zapatos"><strong>Reflexión:</strong><br>La falta de accesibilidad (etiquetas, personal capacitado) convierte una tarea simple en una misión imposible, generando dependencia y frustración. La autonomía se pierde.</td></tr></table>`, 
-                        choices: [ { text: "Elegir otro reto", nextSceneId: 'character_select' } ]
-                    },
-                    { id: 14, title: "Pidiendo Ayuda", text: "Te detienes y pides ayuda. Una persona amable te guía para pasar el obstáculo de forma segura y te acompaña hasta la entrada del supermercado.", image: "juego_1_ponte_mis_zapatos/leo/9.webp", choices: [{ text: "Agradecer y entrar", nextSceneId: 17 }] },
-                    { id: 17, title: "Asistencia Adecuada", text: "Dentro, le pides ayuda a un empleado. Él amablemente te acompaña por los pasillos, te lee las etiquetas y te ayuda a encontrar exactamente lo que necesitabas.", image: "juego_1_ponte_mis_zapatos/leo/asl.webp", choices: [{ text: "Ir a la caja", nextSceneId: 18 }] },
-                    { id: 18, title: "Final Positivo", text: "Con los productos correctos, pagas sin problemas y sales del supermercado habiendo completado tu tarea de forma eficiente y sintiéndote respetado.", image: "juego_1_ponte_mis_zapatos/leo/fpl.webp", choices: [{ text: "Ver Reflexión", nextSceneId: 19 }] },
-                    { 
-                        id: 19, title: "Reflexión: Inclusión Efectiva", image: "juego_1_ponte_mis_zapatos/leo/ril.webp",
-                        text: `<table id="reflection-table"><tr><th colspan="2">Análisis del Reto de Leo</th></tr><tr><td><strong>Resultado:</strong><br>Completaste tu objetivo con éxito y de forma autónoma.</td><td><strong>Clave del Éxito:</strong><br>• Pedir ayuda cuando fue necesario.<br>• La existencia de personal capacitado y empático.</td></tr><tr><td colspan="2" class="ponte-en-tus-zapatos"><strong>Reflexión:</strong><br>La verdadera inclusión no es solo evitar barreras, sino también proporcionar los apoyos adecuados. Una asistencia respetuosa fomenta la independencia y la dignidad.</td></tr></table>`,
-                        choices: [ { text: "Elegir otro reto", nextSceneId: 'character_select' } ]
-                    }
-                ]
-            },
-            ana: {
-                music: 'audio/ana_theme.mp3',
-                scenes: [
-                    { id: 20, title: "El Reto de Ana", text: "Eres Ana, una persona sorda. Necesitas ir al banco para consultar sobre un cargo desconocido en tu cuenta.", image: "juego_1_ponte_mis_zapatos/ana/1.webp", choices: [ { text: "Entrar al banco", nextSceneId: 21 } ] },
-                    { id: 21, title: "Llegando al mostrador", text: "Llegas al mostrador. El cajero te habla a través de un vidrio y no puedes leer sus labios. Le indicas que eres sorda.", image: "juego_1_ponte_mis_zapatos/ana/2.webp", choices: [ { text: "Usar lápiz y papel", nextSceneId: 22 }, { text: "Usar una app de intérprete", nextSceneId: 23 } ] },
-                    { id: 22, title: "Barreras de Comunicación", text: "Sacas un cuaderno. La comunicación es lenta y frustrante. La gente en la fila se impacienta. El cajero parece molesto.", image: "juego_1_ponte_mis_zapatos/ana/3.webp", choices: [ { text: "Intentar explicar el problema", nextSceneId: 24 } ] },
-                    { id: 24, title: "Final Desastroso", text: "El cajero no entiende bien tu pregunta escrita, te da una respuesta genérica y atiende a la siguiente persona. Te vas sin resolver tu problema y sintiéndote ignorada.", image: "juego_1_ponte_mis_zapatos/ana/4.webp", choices: [ { text: "Ver Reflexión", nextSceneId: 25 } ] },
-                    { 
-                        id: 25, title: "Reflexión: Comunicación Rota", image: "juego_1_ponte_mis_zapatos/ana/5.webp",
-                        text: `<table id="reflection-table"><tr><th colspan="2">Análisis del Reto de Ana</th></tr><tr><td><strong>Resultado:</strong><br>Tu problema no fue resuelto y la experiencia fue negativa.</td><td><strong>Causas:</strong><br>• Falta de canales de comunicación accesibles.<br>• Impaciencia y falta de capacitación del personal.</td></tr><tr><td colspan="2" class="ponte-en-tus-zapatos"><strong>Reflexión:</strong><br>La comunicación es un derecho. Cuando las empresas no ofrecen alternativas accesibles (como intérpretes o video-llamadas), excluyen activamente a una parte de la población.</td></tr></table>`, 
-                        choices: [ { text: "Elegir otro reto", nextSceneId: 'character_select' } ]
-                    },
-                    { id: 23, title: "Tecnología como Aliada", text: "Sacas tu celular y abres una aplicación de video-interpretación que te conecta con un intérprete de Lengua de Señas.", image: "juego_1_ponte_mis_zapatos/ana/6.webp", choices: [ { text: "Mostrarle el teléfono al cajero", nextSceneId: 26 } ] },
-                    { id: 26, title: "Comunicación Fluida", text: "El cajero se sorprende, pero colabora. A través del intérprete en tu pantalla, tienes una conversación clara y rápida. El cajero entiende tu problema al instante.", image: "juego_1_ponte_mis_zapatos/ana/7.webp", choices: [ { text: "Resolver el problema", nextSceneId: 27 } ] },
-                    { id: 27, title: "Final Positivo", text: "El cajero identifica el cargo, lo corrige y te pide disculpas. Resuelves tu problema eficientemente y te vas sintiéndote satisfecha y empoderada.", image: "juego_1_ponte_mis_zapatos/ana/8.webp", choices: [ { text: "Ver Reflexión", nextSceneId: 28 } ] },
-                    { 
-                        id: 28, title: "Reflexión: Puentes Tecnológicos", image: "juego_1_ponte_mis_zapatos/ana/9.webp",
-                        text: `<table id="reflection-table"><tr><th colspan="2">Análisis del Reto de Ana</th></tr><tr><td><strong>Resultado:</strong><br>Resolviste tu problema de forma rápida y autónoma.</td><td><strong>Clave del Éxito:</strong><br>• El uso de tecnología de asistencia.<br>• La disposición del personal para usar un método no tradicional.</td></tr><tr><td colspan="2" class="ponte-en-tus-zapatos"><strong>Reflexión:</strong><br>La tecnología puede derribar barreras de comunicación que antes parecían insuperables. Las empresas que adoptan estas herramientas promueven una inclusión real y efectiva.</td></tr></table>`, 
-                        choices: [ { text: "Elegir otro reto", nextSceneId: 'character_select' } ]
-                    }
-                ]
-            },
-            sofia: {
-                music: 'audio/sofia_theme.mp3',
-                scenes: [
-                    { id: 29, title: "El Reto de Sofía", text: "Vives con ansiedad social. Tu reto: Ir a un centro comercial a reclamar una garantía.", image: "juego_1_ponte_mis_zapatos/sofia/1.webp", choices: [ { text: "Ir al centro comercial", nextSceneId: 30 } ] },
-                    { id: 30, title: "La Entrada", text: "Llegas a la entrada. El ruido, las luces y la multitud de gente te golpean de inmediato. Sientes que tu corazón se acelera.", image: "juego_1_ponte_mis_zapatos/sofia/2.webp", choices: [ { text: "Forzarte a entrar rápidamente", nextSceneId: 31 }, { text: "Tomarte un momento y usar tus audífonos", nextSceneId: 32 } ] },
-                    { id: 31, title: "Sobrecarga Sensorial", text: "Entras de golpe. El caos sensorial es demasiado. Te sientes desorientada y abrumada, tu respiración se agita.", image: "juego_1_ponte_mis_zapatos/sofia/3.webp", choices: [ { text: "Intentar buscar la tienda", nextSceneId: 33 } ] },
-                    { id: 33, title: "Final Desastroso", text: "La sobrecarga se convierte en un ataque de pánico. No puedes pensar con claridad. La única opción es salir del centro comercial lo antes posible, sin lograr tu objetivo.", image: "juego_1_ponte_mis_zapatos/sofia/4.webp", choices: [ { text: "Ver Reflexión", nextSceneId: 34 } ] },
-                    { 
-                        id: 34, title: "Reflexión: Barreras Invisibles", image: "juego_1_ponte_mis_zapatos/sofia/5.webp",
-                        text: `<table id="reflection-table"><tr><th colspan="2">Análisis del Reto de Sofía</th></tr><tr><td><strong>Resultado:</strong><br>El entorno te superó y no pudiste completar tu tarea.</td><td><strong>Causas:</strong><br>• Sobrecarga sensorial (ruido, luces, multitud).<br>• La naturaleza invisible de la discapacidad psicosocial.</td></tr><tr><td colspan="2" class="ponte-en-tus-zapatos"><strong>Reflexión:</strong><br>Para muchas personas, un entorno "normal" puede ser hostil. La accesibilidad también significa crear espacios sensorialmente amables y tener empatía por las luchas que no se ven.</td></tr></table>`, 
-                        choices: [ { text: "Elegir otro reto", nextSceneId: 'character_select' } ]
-                    },
-                    { id: 32, title: "Estrategia de Afrontamiento", text: "Te detienes un momento. Te pones los audífonos con música tranquila y tomas varias respiraciones profundas. Entras sintiéndote más preparada.", image: "juego_1_ponte_mis_zapatos/sofia/6.webp", choices: [ { text: "Buscar la tienda", nextSceneId: 35 } ] },
-                    { id: 35, title: "Navegando el Entorno", text: "La música te ayuda a bloquear el ruido excesivo. Logras encontrar la tienda y te pones en la fila, concentrándote en tu respiración.", image: "juego_1_ponte_mis_zapatos/sofia/7.webp", choices: [ { text: "Hablar con el empleado", nextSceneId: 36 } ] },
-                    { id: 36, title: "Final Positivo", text: "Cuando llega tu turno, explicas la situación con calma. El empleado es amable y procesa tu garantía sin problemas. Sales del centro comercial sintiéndote orgullosa de haberlo logrado.", image: "juego_1_ponte_mis_zapatos/sofia/8.webp", choices: [ { text: "Ver Reflexión", nextSceneId: 37 } ] },
-                    { 
-                        id: 37, title: "Reflexión: Autogestión y Empatía", image: "juego_1_ponte_mis_zapatos/sofia/9.webp",
-                        text: `<table id="reflection-table"><tr><th colspan="2">Análisis del Reto de Sofía</th></tr><tr><td><strong>Resultado:</strong><br>Completaste tu objetivo con éxito.</td><td><strong>Clave del Éxito:</strong><br>• El uso de estrategias de afrontamiento personalizadas.<br>• Un momento de preparación antes de enfrentar el desafío.</td></tr><tr><td colspan="2" class="ponte-en-tus-zapatos"><strong>Reflexión:</strong><br>Las personas con discapacidad psicosocial a menudo desarrollan herramientas para navegar el mundo. Respetar sus tiempos y procesos es una forma fundamental de empatía y apoyo.</td></tr></table>`, 
-                        choices: [ { text: "Elegir otro reto", nextSceneId: 'character_select' } ]
-                    }
-                ]
-            }
-        };
+  <div id="preload-progress" aria-label="Progreso de precarga de imágenes">
+    <span id="preload-bar"></span>
+  </div>
+  <div id="preload-log" aria-live="off"></div>
+</div>
 
-        let currentStoryData = null;
+<!-- Contenedor del juego -->
+<main id="game-container" class="main-container hidden" aria-live="polite">
+  <div class="image-block">
+    <span class="circleLight"></span>
+    <img id="scene-image" src="" alt="" loading="lazy" decoding="async">
+  </div>
+  <h1 id="scene-title"></h1>
+  <div id="story-text"></div>
+  <div id="choices-container"></div>
+</main>
 
-        function playMusic(track) {
-            if (audioElement.src !== track) {
-                audioElement.src = track;
-            }
-            audioElement.play().catch(error => console.log("La reproducción automática fue bloqueada por el navegador. Se requiere interacción del usuario."));
-        }
+<audio id="background-music" preload="none" loop></audio>
 
-        function showScene(sceneId) {
-            if (sceneId === 'character_select') {
-                gameContainer.classList.add('hidden');
-                characterSelectionContainer.classList.remove('hidden');
-                playMusic(mainTheme);
-                return;
-            }
+<script>
+/* ================================
+   CONFIGURACIÓN Y DATOS DE HISTORIAS
+   ================================ */
 
-            const scene = currentStoryData.scenes.find(s => s.id === sceneId);
-            
-            if (scene.text.includes("<table")) {
-                storyTextElement.style.display = 'block';
-                storyTextElement.style.minHeight = 'auto';
-            } else {
-                storyTextElement.style.display = 'flex';
-                storyTextElement.style.minHeight = '100px';
-            }
-            const imageUrl = `url('${scene.image}')`;
-            glitchContainer.style.backgroundImage = imageUrl;
-            glitchImages.forEach(img => { img.style.backgroundImage = imageUrl; });
-            sceneTitleElement.innerText = scene.title;
-            storyTextElement.innerHTML = scene.text;
-            choicesContainerElement.innerHTML = '';
-            
-            scene.choices.forEach(choice => {
-                const button = document.createElement('button');
-                button.className = 'choice-button';
-                const buttonText = document.createElement('span');
-                buttonText.innerText = choice.text;
-                button.appendChild(buttonText);
-                
-                if (choice.link) {
-                    button.addEventListener('click', () => { window.location.href = choice.link; });
-                } else {
-                    button.addEventListener('click', () => showScene(choice.nextSceneId));
-                }
-                
-                choicesContainerElement.appendChild(button);
-            });
-        }
+const mainTheme = './audio/main_theme.mp3';
 
-        // --- LÓGICA DE NAVEGACIÓN ---
-        characterButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const character = button.dataset.character;
-                currentStoryData = stories[character];
-                characterSelectionContainer.classList.add('hidden');
-                gameContainer.classList.remove('hidden');
-                playMusic(currentStoryData.music);
-                showScene(currentStoryData.scenes[0].id);
-            });
-        });
+const stories = {
+  juan: {
+    music: './audio/juan_theme.mp3',
+    scenes: [
+      { id:1, title:"El Reto de Juan", text:"Son las 8:00 a.m. Tu examen final es a las 9:00 a.m. Sales de casa.", image:"./juego_1_ponte_mis_zapatos/juan/img/1.webp", choices:[{text:"Avanzar por el andén", nextSceneId:2}] },
+      { id:2, title:"Primera Barrera", text:"A solo una cuadra, un carro bloquea el andén. Es imposible pasar.", image:"./juego_1_ponte_mis_zapatos/juan/img/2.webp", choices:[{text:"Bajar a la calle para rodearlo", nextSceneId:3},{text:"Esperar y pedir ayuda", nextSceneId:4}] },
+      { id:3, title:"Ruta Peligrosa", text:"Bajas a la calle. Los carros pasan rápido y te sientes vulnerable. Llegas al paradero, pero has perdido tiempo valioso.", image:"./juego_1_ponte_mis_zapatos/juan/img/3.webp", choices:[{text:"Esperar el bus", nextSceneId:5}] },
+      { id:5, title:"Bus Inaccesible", text:"Llega tu ruta, pero es un bus antiguo sin rampa. El conductor te ve y sigue de largo. La frustración es enorme.", image:"./juego_1_ponte_mis_zapatos/juan/img/4.webp", choices:[{text:"Esperar el siguiente bus", nextSceneId:6}] },
+      { id:6, title:"Final Desastroso", text:"El siguiente bus tarda 20 minutos en llegar. Cuando por fin subes, ya es demasiado tarde. Has perdido el examen final.", image:"./juego_1_ponte_mis_zapatos/juan/img/noc.webp", choices:[{text:"Ver Reflexión", nextSceneId:7}] },
+      { id:7, title:"Reflexión: Exclusión", image:"./juego_1_ponte_mis_zapatos/juan/img/exj.webp",
+        text:`<table id="reflection-table"><tr><th colspan="2">Análisis del Reto de Juan</th></tr>
+        <tr><td><strong>Resultado:</strong><br>Fallaste en tu objetivo por barreras fuera de tu control.</td>
+        <td><strong>Causas:</strong><br>• Infraestructura deficiente (andenes, buses).<br>• Falta de empatía y civismo.</td></tr>
+        <tr><td colspan="2" class="ponte-en-tus-zapatos"><strong>Reflexión:</strong><br>A veces, no importa cuánto te esfuerces, si el sistema no es inclusivo, te deja por fuera. La exclusión es el resultado de un entorno que no está diseñado para todos.</td></tr></table>`,
+        choices:[{text:"Elegir otro reto", nextSceneId:'character_select'}] },
+      { id:4, title:"Pidiendo Ayuda", text:"Decides esperar. La primera persona te ignora, pero insistes. Una segunda persona se detiene y te ayuda a pasar de forma segura.", image:"./juego_1_ponte_mis_zapatos/juan/img/7.webp", choices:[{text:"Agradecer y continuar", nextSceneId:8}] },
+      { id:8, title:"Un Aliado", text:"La persona que te ayudó se indigna por el carro mal parqueado y decide reportarlo. Juntos llegan al paradero.", image:"./juego_1_ponte_mis_zapatos/juan/img/alj.webp", choices:[{text:"Esperar el bus en compañía", nextSceneId:9}] },
+      { id:9, title:"Final Positivo", text:"El primer bus es inaccesible, pero el segundo, que llega rápido, sí tiene rampa. Subes y llegas a tu examen justo a tiempo. La ayuda de una persona marcó la diferencia.", image:"./juego_1_ponte_mis_zapatos/juan/img/fnj.webp", choices:[{text:"Ver Reflexión", nextSceneId:10}] },
+      { id:10, title:"Reflexión: El Poder de la Ayuda", image:"./juego_1_ponte_mis_zapatos/juan/img/ayj.webp",
+        text:`<table id="reflection-table"><tr><th colspan="2">Análisis del Reto de Juan</th></tr>
+        <tr><td><strong>Resultado:</strong><br>Lograste tu objetivo a pesar de las dificultades.</td>
+        <td><strong>Clave del Éxito:</strong><br>• Tu paciencia y perseverancia.<br>• La empatía y acción de otra persona.</td></tr>
+        <tr><td colspan="2" class="ponte-en-tus-zapatos"><strong>Reflexión:</strong><br>Las barreras sistémicas son difíciles de superar en solitario. La empatía y la disposición a ayudar de los demás pueden ser el puente que garantiza la inclusión y la igualdad de oportunidades.</td></tr></table>`,
+        choices:[{text:"Elegir otro reto", nextSceneId:'character_select'}] }
+    ]
+  },
+  leo: {
+    music:'./audio/leo_theme.mp3',
+    scenes:[
+      { id:11, title:"El Reto de Leo", text:"Necesitas comprar tres ingredientes. Coges tu bastón y sales de casa.", image:"./juego_1_ponte_mis_zapatos/leo/1.webp", choices:[{text:"Comenzar a caminar", nextSceneId:12}] },
+      { id:12, title:"Primera Barrera", text:"Sigues la línea guía del andén, pero tu bastón cae en un hueco. Es una alcantarilla abierta.", image:"./juego_1_ponte_mis_zapatos/leo/2.webp", choices:[{text:"Intentar rodearla por tu cuenta", nextSceneId:13},{text:"Pedir orientación", nextSceneId:14}] },
+      { id:13, title:"Rodeando a Ciegas", text:"Te mueves hacia la pared para rodear el peligro, pero te golpeas con una señal de tráfico mal ubicada. Entras al supermercado frustrado.", image:"./juego_1_ponte_mis_zapatos/leo/3.webp", choices:[{text:"Buscar los productos solo", nextSceneId:15}] },
+      { id:15, title:"Final Desastroso", text:"Intentas encontrar los productos al tacto. Después de mucho tiempo, llegas a la caja y el cajero te informa que has cogido lasaña y arvejas. Frustrado, decides irte sin nada.", image:"./juego_1_ponte_mis_zapatos/leo/7.webp", choices:[{text:"Ver Reflexión", nextSceneId:16}] },
+      { id:16, title:"Reflexión: Falta de Apoyo", image:"./juego_1_ponte_mis_zapatos/leo/8.webp",
+        text:`<table id="reflection-table"><tr><th colspan="2">Análisis del Reto de Leo</th></tr>
+        <tr><td><strong>Resultado:</strong><br>No lograste tu objetivo y te fuiste con las manos vacías.</td>
+        <td><strong>Causas:</strong><br>• Entorno físico peligroso e inaccesible.<br>• Falta de sistemas de apoyo en el comercio.</td></tr>
+        <tr><td colspan="2" class="ponte-en-tus-zapatos"><strong>Reflexión:</strong><br>La falta de accesibilidad (etiquetas, personal capacitado) convierte una tarea simple en una misión imposible, generando dependencia y frustración. La autonomía se pierde.</td></tr></table>`,
+        choices:[{text:"Elegir otro reto", nextSceneId:'character_select'}] },
+      { id:14, title:"Pidiendo Ayuda", text:"Te detienes y pides ayuda. Una persona amable te guía para pasar el obstáculo de forma segura y te acompaña hasta la entrada del supermercado.", image:"./juego_1_ponte_mis_zapatos/leo/9.webp", choices:[{text:"Agradecer y entrar", nextSceneId:17}] },
+      { id:17, title:"Asistencia Adecuada", text:"Dentro, le pides ayuda a un empleado. Él amablemente te acompaña por los pasillos, te lee las etiquetas y te ayuda a encontrar exactamente lo que necesitabas.", image:"./juego_1_ponte_mis_zapatos/leo/asl.webp", choices:[{text:"Ir a la caja", nextSceneId:18}] },
+      { id:18, title:"Final Positivo", text:"Con los productos correctos, pagas sin problemas y sales del supermercado habiendo completado tu tarea de forma eficiente y sintiéndote respetado.", image:"./juego_1_ponte_mis_zapatos/leo/fpl.webp", choices:[{text:"Ver Reflexión", nextSceneId:19}] },
+      { id:19, title:"Reflexión: Inclusión Efectiva", image:"./juego_1_ponte_mis_zapatos/leo/ril.webp",
+        text:`<table id="reflection-table"><tr><th colspan="2">Análisis del Reto de Leo</th></tr>
+        <tr><td><strong>Resultado:</strong><br>Completaste tu objetivo con éxito y de forma autónoma.</td>
+        <td><strong>Clave del Éxito:</strong><br>• Pedir ayuda cuando fue necesario.<br>• La existencia de personal capacitado y empático.</td></tr>
+        <tr><td colspan="2" class="ponte-en-tus-zapatos"><strong>Reflexión:</strong><br>La verdadera inclusión no es solo evitar barreras, sino también proporcionar los apoyos adecuados. Una asistencia respetuosa fomenta la independencia y la dignidad.</td></tr></table>`,
+        choices:[{text:"Elegir otro reto", nextSceneId:'character_select'}] }
+    ]
+  },
+  ana: {
+    music:'./audio/ana_theme.mp3',
+    scenes:[
+      { id:20, title:"El Reto de Ana", text:"Eres Ana, una persona sorda. Necesitas ir al banco para consultar sobre un cargo desconocido en tu cuenta.", image:"./juego_1_ponte_mis_zapatos/ana/1.webp", choices:[{text:"Entrar al banco", nextSceneId:21}] },
+      { id:21, title:"Llegando al mostrador", text:"Llegas al mostrador. El cajero te habla a través de un vidrio y no puedes leer sus labios. Le indicas que eres sorda.", image:"./juego_1_ponte_mis_zapatos/ana/2.webp", choices:[{text:"Usar lápiz y papel", nextSceneId:22},{text:"Usar una app de intérprete", nextSceneId:23}] },
+      { id:22, title:"Barreras de Comunicación", text:"Sacas un cuaderno. La comunicación es lenta y frustrante. La gente en la fila se impacienta. El cajero parece molesto.", image:"./juego_1_ponte_mis_zapatos/ana/3.webp", choices:[{text:"Intentar explicar el problema", nextSceneId:24}] },
+      { id:24, title:"Final Desastroso", text:"El cajero no entiende bien tu pregunta escrita, te da una respuesta genérica y atiende a la siguiente persona. Te vas sin resolver tu problema y sintiéndote ignorada.", image:"./juego_1_ponte_mis_zapatos/ana/4.webp", choices:[{text:"Ver Reflexión", nextSceneId:25}] },
+      { id:25, title:"Reflexión: Comunicación Rota", image:"./juego_1_ponte_mis_zapatos/ana/5.webp",
+        text:`<table id="reflection-table"><tr><th colspan="2">Análisis del Reto de Ana</th></tr>
+        <tr><td><strong>Resultado:</strong><br>Tu problema no fue resuelto y la experiencia fue negativa.</td>
+        <td><strong>Causas:</strong><br>• Falta de canales de comunicación accesibles.<br>• Impaciencia y falta de capacitación del personal.</td></tr>
+        <tr><td colspan="2" class="ponte-en-tus-zapatos"><strong>Reflexión:</strong><br>La comunicación es un derecho. Cuando las empresas no ofrecen alternativas accesibles (como intérpretes o videollamadas), excluyen activamente a una parte de la población.</td></tr></table>`,
+        choices:[{text:"Elegir otro reto", nextSceneId:'character_select'}] },
+      { id:23, title:"Tecnología como Aliada", text:"Sacas tu celular y abres una aplicación de video-interpretación que te conecta con un intérprete de Lengua de Señas.", image:"./juego_1_ponte_mis_zapatos/ana/6.webp", choices:[{text:"Mostrarle el teléfono al cajero", nextSceneId:26}] },
+      { id:26, title:"Comunicación Fluida", text:"El cajero se sorprende, pero colabora. A través del intérprete en tu pantalla, tienes una conversación clara y rápida. El cajero entiende tu problema al instante.", image:"./juego_1_ponte_mis_zapatos/ana/7.webp", choices:[{text:"Resolver el problema", nextSceneId:27}] },
+      { id:27, title:"Final Positivo", text:"El cajero identifica el cargo, lo corrige y te pide disculpas. Resuelves tu problema eficientemente y te vas sintiéndote satisfecha y empoderada.", image:"./juego_1_ponte_mis_zapatos/ana/8.webp", choices:[{text:"Ver Reflexión", nextSceneId:28}] },
+      { id:28, title:"Reflexión: Puentes Tecnológicos", image:"./juego_1_ponte_mis_zapatos/ana/9.webp",
+        text:`<table id="reflection-table"><tr><th colspan="2">Análisis del Reto de Ana</th></tr>
+        <tr><td><strong>Resultado:</strong><br>Resolviste tu problema de forma rápida y autónoma.</td>
+        <td><strong>Clave del Éxito:</strong><br>• El uso de tecnología de asistencia.<br>• La disposición del personal para usar un método no tradicional.</td></tr>
+        <tr><td colspan="2" class="ponte-en-tus-zapatos"><strong>Reflexión:</strong><br>La tecnología puede derribar barreras de comunicación que antes parecían insuperables. Las empresas que adoptan estas herramientas promueven una inclusión real y efectiva.</td></tr></table>`,
+        choices:[{text:"Elegir otro reto", nextSceneId:'character_select'}] }
+    ]
+  },
+  sofia: {
+    music:'./audio/sofia_theme.mp3',
+    scenes:[
+      { id:29, title:"El Reto de Sofía", text:"Vives con ansiedad social. Tu reto: Ir a un centro comercial a reclamar una garantía.", image:"./juego_1_ponte_mis_zapatos/sofia/1.webp", choices:[{text:"Ir al centro comercial", nextSceneId:30}] },
+      { id:30, title:"La Entrada", text:"Llegas a la entrada. El ruido, las luces y la multitud de gente te golpean de inmediato. Sientes que tu corazón se acelera.", image:"./juego_1_ponte_mis_zapatos/sofia/2.webp", choices:[{text:"Forzarte a entrar rápidamente", nextSceneId:31},{text:"Tomarte un momento y usar tus audífonos", nextSceneId:32}] },
+      { id:31, title:"Sobrecarga Sensorial", text:"Entras de golpe. El caos sensorial es demasiado. Te sientes desorientada y abrumada, tu respiración se agita.", image:"./juego_1_ponte_mis_zapatos/sofia/3.webp", choices:[{text:"Intentar buscar la tienda", nextSceneId:33}] },
+      { id:33, title:"Final Desastroso", text:"La sobrecarga se convierte en un ataque de pánico. No puedes pensar con claridad. La única opción es salir del centro comercial lo antes posible, sin lograr tu objetivo.", image:"./juego_1_ponte_mis_zapatos/sofia/4.webp", choices:[{text:"Ver Reflexión", nextSceneId:34}] },
+      { id:34, title:"Reflexión: Barreras Invisibles", image:"./juego_1_ponte_mis_zapatos/sofia/5.webp",
+        text:`<table id="reflection-table"><tr><th colspan="2">Análisis del Reto de Sofía</th></tr>
+        <tr><td><strong>Resultado:</strong><br>El entorno te superó y no pudiste completar tu tarea.</td>
+        <td><strong>Causas:</strong><br>• Sobrecarga sensorial (ruido, luces, multitud).<br>• La naturaleza invisible de la discapacidad psicosocial.</td></tr>
+        <tr><td colspan="2" class="ponte-en-tus-zapatos"><strong>Reflexión:</strong><br>Para muchas personas, un entorno “normal” puede ser hostil. La accesibilidad también significa crear espacios sensorialmente amables y tener empatía por las luchas que no se ven.</td></tr></table>`,
+        choices:[{text:"Elegir otro reto", nextSceneId:'character_select'}] },
+      { id:32, title:"Estrategia de Afrontamiento", text:"Te detienes un momento. Te pones los audífonos con música tranquila y tomas varias respiraciones profundas. Entras sintiéndote más preparada.", image:"./juego_1_ponte_mis_zapatos/sofia/6.webp", choices:[{text:"Buscar la tienda", nextSceneId:35}] },
+      { id:35, title:"Navegando el Entorno", text:"La música te ayuda a bloquear el ruido excesivo. Logras encontrar la tienda y te pones en la fila, concentrándote en tu respiración.", image:"./juego_1_ponte_mis_zapatos/sofia/7.webp", choices:[{text:"Hablar con el empleado", nextSceneId:36}] },
+      { id:36, title:"Final Positivo", text:"Cuando llega tu turno, explicas la situación con calma. El empleado es amable y procesa tu garantía sin problemas. Sales del centro comercial sintiéndote orgullosa de haberlo logrado.", image:"./juego_1_ponte_mis_zapatos/sofia/8.webp", choices:[{text:"Ver Reflexión", nextSceneId:37}] },
+      { id:37, title:"Reflexión: Autogestión y Empatía", image:"./juego_1_ponte_mis_zapatos/sofia/9.webp",
+        text:`<table id="reflection-table"><tr><th colspan="2">Análisis del Reto de Sofía</th></tr>
+        <tr><td><strong>Resultado:</strong><br>Completaste tu objetivo con éxito.</td>
+        <td><strong>Clave del Éxito:</strong><br>• El uso de estrategias de afrontamiento personalizadas.<br>• Un momento de preparación antes de enfrentar el desafío.</td></tr>
+        <tr><td colspan="2" class="ponte-en-tus-zapatos"><strong>Reflexión:</strong><br>Las personas con discapacidad psicosocial a menudo desarrollan herramientas para navegar el mundo. Respetar sus tiempos y procesos es una forma fundamental de empatía y apoyo.</td></tr></table>`,
+        choices:[{text:"Elegir otro reto", nextSceneId:'character_select'}] }
+    ]
+  }
+};
 
-        // --- SETUP INICIAL ---
-        const selectionImageUrl = `url('imgs/00.webp')`;
-        selectionGlitchContainer.style.backgroundImage = selectionImageUrl;
-        selectionGlitchImages.forEach(img => {
-            img.style.backgroundImage = selectionImageUrl;
-        });
-        
-        playMusic(mainTheme); // Carga la música principal al inicio
+/* ================================
+   REFERENCIAS DOM
+   ================================ */
+const selectionContainer = document.getElementById('character-selection-container');
+const gameContainer = document.getElementById('game-container');
+const characterButtons = document.querySelectorAll('#character-buttons .choice-button');
+const sceneImage = document.getElementById('scene-image');
+const sceneTitleEl = document.getElementById('scene-title');
+const storyTextEl = document.getElementById('story-text');
+const choicesEl = document.getElementById('choices-container');
+const selectionImage = document.getElementById('selection-image');
+const enableAudioBtn = document.getElementById('enable-audio');
+const audioEl = document.getElementById('background-music');
+const preloadBar = document.getElementById('preload-bar');
+const preloadLog = document.getElementById('preload-log');
+const togglePreloadLogBtn = document.getElementById('toggle-preload-log');
 
-        var mouse = { X: 0, Y: 0, CX: 0, CY: 0 },
-            block = { X: mouse.X, Y: mouse.Y, CX: mouse.CX, CY: mouse.CY };
+let audioEnabled = false;
+let currentStoryData = null;
 
-        $('.image-block').on('mousemove', function(e) {
-            var $this = $(this);
-            mouse.X = (e.pageX - $this.offset().left) - $this.width() / 2;
-            mouse.Y = (e.pageY - $this.offset().top) - $this.height() / 2;
-        });
+/* ================================
+   AUDIO
+   ================================ */
+function playMusic(track){
+  if(!audioEnabled) return;
+  if(audioEl.getAttribute('data-src') !== track){
+    audioEl.setAttribute('data-src', track);
+    audioEl.src = track;
+  }
+  audioEl.play().catch(()=>{ /* Silencioso si el navegador bloquea */ });
+}
 
-        $('.image-block').on('mouseleave', function(e) {
-            mouse.X = mouse.CX;
-            mouse.Y = mouse.CY;
-        });
+enableAudioBtn.addEventListener('click', ()=>{
+  audioEnabled = true;
+  playMusic(mainTheme);
+  enableAudioBtn.textContent = 'Sonido Activado';
+});
 
-        setInterval(function(){
-            block.CY += (mouse.Y - block.CY) / 12;
-            block.CX += (mouse.X - block.CX) / 12;
+/* ================================
+   MOSTRAR ESCENA
+   ================================ */
+function showScene(sceneId){
+  if(sceneId === 'character_select'){
+    gameContainer.classList.add('hidden');
+    selectionContainer.classList.remove('hidden');
+    playMusic(mainTheme);
+    return;
+  }
+  const scene = currentStoryData.scenes.find(s => s.id === sceneId);
+  if(!scene){ console.warn('Escena no encontrada:', sceneId); return; }
 
-            $('.image-block .circleLight').css('background', 'radial-gradient(circle at ' + mouse.X + 'px ' + mouse.Y + 'px, #fff, transparent)');
-            $('.image-block').css({
-                transform: 'scale(1.03) translate(' + (block.CX * 0.05) + 'px, ' + (block.CY * 0.05) + 'px) rotateX(' + (block.CY * 0.05) + 'deg) rotateY(' + (block.CX * 0.05) + 'deg)'
-            });
-        }, 20);
+  if(scene.text.includes('<table')){
+    storyTextEl.style.display = 'block';
+    storyTextEl.style.minHeight = 'auto';
+  } else {
+    storyTextEl.style.display = 'flex';
+    storyTextEl.style.minHeight = '110px';
+  }
 
-        // --- LÓGICA DEL PRELOADER ---
-        window.onload = function() {
-            const preloader = document.getElementById('preloader');
-            const body = document.querySelector('body');
-            preloader.style.opacity = '0';
-            // Espera a que la transición de opacidad termine para quitar el preloader del DOM
-            setTimeout(() => {
-                preloader.style.display = 'none';
-                body.classList.remove('loading');
-            }, 500); // 500ms coincide con la duración de la transición en el CSS
-        };
-    </script>
+  sceneImage.src = scene.image;
+  sceneImage.alt = scene.title;
+  sceneTitleEl.textContent = scene.title;
+  storyTextEl.innerHTML = scene.text;
+  choicesEl.innerHTML = '';
+
+  scene.choices.forEach(choice => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-button';
+    btn.innerHTML = `<span>${choice.text}</span>`;
+    btn.addEventListener('click', () => showScene(choice.nextSceneId));
+    choicesEl.appendChild(btn);
+  });
+
+  // Precarga ligera de próximas 3 imágenes
+  const idx = currentStoryData.scenes.indexOf(scene);
+  const nextSlice = currentStoryData.scenes.slice(idx+1, idx+4);
+  nextSlice.forEach(s => { if(s?.image) { const im = new Image(); im.src = s.image; } });
+}
+
+/* ================================
+   EVENTOS DE SELECCIÓN
+   ================================ */
+characterButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const character = btn.dataset.character;
+    currentStoryData = stories[character];
+    selectionContainer.classList.add('hidden');
+    gameContainer.classList.remove('hidden');
+    playMusic(currentStoryData.music);
+    showScene(currentStoryData.scenes[0].id);
+  });
+});
+
+/* ================================
+   EFECTO 3D LIGERO
+   ================================ */
+const threeDBlocks = document.querySelectorAll('.image-block');
+let mouse = { x:0, y:0 };
+let target = { x:0, y:0 };
+
+threeDBlocks.forEach(block => {
+  block.addEventListener('mousemove', e => {
+    const r = block.getBoundingClientRect();
+    mouse.x = (e.clientX - r.left) - r.width/2;
+    mouse.y = (e.clientY - r.top) - r.height/2;
+  });
+  block.addEventListener('mouseleave', () => {
+    mouse.x = 0; mouse.y = 0;
+  });
+});
+
+function animate3D(){
+  target.x += (mouse.x - target.x)/12;
+  target.y += (mouse.y - target.y)/12;
+  threeDBlocks.forEach(block => {
+    block.style.transform = `translate(${target.x*0.05}px, ${target.y*0.05}px) rotateX(${target.y*0.06}deg) rotateY(${target.x*0.06}deg)`;
+    const circle = block.querySelector('.circleLight');
+    if(circle){
+      const cx = (mouse.x + block.clientWidth/2);
+      const cy = (mouse.y + block.clientHeight/2);
+      circle.style.background = `radial-gradient(circle at ${cx}px ${cy}px, #fff, transparent 60%)`;
+    }
+  });
+  requestAnimationFrame(animate3D);
+}
+requestAnimationFrame(animate3D);
+
+/* ================================
+   PRE-CARGA GLOBAL DE IMÁGENES (NO BLOQUEANTE)
+   ================================ */
+const allImagePaths = [];
+Object.values(stories).forEach(story => {
+  story.scenes.forEach(sc => { if(sc.image) allImagePaths.push(sc.image); });
+});
+/* Evita duplicados */
+const uniqueImages = Array.from(new Set(['./imgs/00.webp', ...allImagePaths]));
+
+/* Barra de progreso */
+let loadedCount = 0;
+function updateProgress(src, ok=true){
+  loadedCount++;
+  const pct = Math.round((loadedCount / uniqueImages.length)*100);
+  preloadBar.style.width = pct + '%';
+  if(preloadLogVisible){
+    const line = document.createElement('div');
+    line.textContent = (ok?'OK ':'ERR') + ' ' + src;
+    preloadLog.appendChild(line);
+    preloadLog.scrollTop = preloadLog.scrollHeight;
+  }
+}
+
+function preloadAllImages(list){
+  list.forEach(src => {
+    const img = new Image();
+    img.onload = () => updateProgress(src,true);
+    img.onerror = () => updateProgress(src,false);
+    img.decoding = 'async';
+    img.loading = 'eager';
+    img.src = src;
+  });
+}
+let preloadLogVisible = false;
+togglePreloadLogBtn.addEventListener('click', ()=>{
+  preloadLogVisible = !preloadLogVisible;
+  preloadLog.style.display = preloadLogVisible ? 'block' : 'none';
+  togglePreloadLogBtn.textContent = preloadLogVisible ? 'Ocultar progreso imágenes' : 'Ver progreso imágenes';
+});
+
+/* Lanza la precarga en segundo plano tras primer frame */
+requestAnimationFrame(()=>preloadAllImages(uniqueImages));
+
+/* ================================
+   INICIALIZACIÓN
+   ================================ */
+document.addEventListener('DOMContentLoaded', () => {
+  if(selectionImage.complete){
+    document.body.classList.remove('loading');
+  } else {
+    selectionImage.addEventListener('load', ()=> document.body.classList.remove('loading'));
+    selectionImage.addEventListener('error', ()=> document.body.classList.remove('loading'));
+  }
+  // Música principal solo si ya habilitó audio antes de cargar
+  playMusic(mainTheme);
+});
+
+/* Accesibilidad: permitir volver a selección con tecla Escape */
+document.addEventListener('keydown', e=>{
+  if(e.key === 'Escape' && !selectionContainer.classList.contains('hidden')){
+    // ya está en selección → nada
+  } else if(e.key === 'Escape' && !gameContainer.classList.contains('hidden')){
+    showScene('character_select');
+  }
+});
+</script>
 </body>
 </html>
