@@ -539,6 +539,36 @@
             filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
         }
 
+        /* --- Botón de control de música --- */
+        #music-control {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 8px 12px;
+            background-color: rgba(27, 39, 53, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            cursor: pointer;
+            z-index: 100;
+            font-family: "Work Sans", sans-serif;
+            font-size: 0.8em;
+            color: #e6f7ff;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        #music-control:hover {
+            background-color: rgba(0, 191, 255, 0.8);
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(0, 191, 255, 0.4);
+        }
+
+        #music-text {
+            white-space: nowrap;
+            font-weight: 600;
+        }
+
         @media (max-width: 768px) {
             body { padding: 22px 12px; }
             .main-container { padding: 1.1rem 1rem 1.9rem; }
@@ -547,6 +577,12 @@
             #story-text, #character-selection-container p { font-size: 1em; }
             .choice-button { font-size: 0.95em; width: 100%; }
             #reflection-table { font-size: 0.78em; }
+            #music-control { 
+                top: 10px; 
+                right: 10px; 
+                font-size: 0.7em;
+                padding: 6px 8px;
+            }
             
             /* Ajustar logo SENA en móviles */
             #sena-logo {
@@ -566,6 +602,11 @@
     <!-- Logo SENA en la esquina superior derecha -->
     <div id="sena-logo">
         <img src="imgs/sena_blanco.webp" alt="Logo SENA">
+    </div>
+
+    <!-- Botón de control de música -->
+    <div id="music-control" title="Control de Música">
+        <span id="music-text">🔇 Encender Música</span>
     </div>
 
     <!-- SVG con líneas animadas de fondo (igual que Mitos y Realidades) -->
@@ -630,6 +671,10 @@
         const choicesContainerElement = document.getElementById('choices-container');
         const sceneTitleElement = document.getElementById('scene-title');
         const audioElement = document.getElementById('background-music');
+        
+        // Variables del control de música
+        const musicControl = document.getElementById('music-control');
+        const musicText = document.getElementById('music-text');
         
         const glitchContainer = document.getElementById('glitch-container');
         const glitchImages = glitchContainer.querySelectorAll('.c-glitch__img'); // ahora vacío, pero no rompe
@@ -846,6 +891,18 @@
             btn.appendChild(ripple);
             ripple.addEventListener('animationend', () => ripple.remove());
         }, { passive:true });
+
+        // Control de música
+        musicControl.addEventListener('click', () => {
+            if (audioElement.paused) {
+                audioElement.play().catch(e => console.log("La reproducción de música fue bloqueada."));
+                musicText.innerHTML = "🔊 Apagar Música";
+            } else {
+                audioElement.pause();
+                musicText.innerHTML = "🔇 Encender Música";
+            }
+        });
+
     </script>
 </body>
 </html>
